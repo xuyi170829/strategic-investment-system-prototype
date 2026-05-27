@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>战略与投资管理系统</title>
+<style>
+:root {
+    --primary-100: #0A6651;
+    --primary-200: #118A73;
+    --primary-300: #E8F5F2;
+    --accent-100: #2E8B57;
+    --accent-200: #0D4F42;
+    --text-100: #333333;
+    --text-200: #666666;
+    --text-300: #999999;
+    --text-white: #FFFFFF;
+    --bg-100: #FFFFFF;
+    --bg-200: #F5F5F5;
+    --bg-300: #EEEEEE;
+    --border-100: #E0E0E0;
+    --border-200: #D0D0D0;
+    --success: #52C41A;
+    --warning: #FAAD14;
+    --error: #FF4D4F;
+    --info: #1890FF;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg-200); color: var(--text-100); min-height: 100vh; font-size: 13px; }
+.header { height: 50px; background: linear-gradient(180deg, #0A6651 0%, #0D4F42 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+.header .logo-area { display: flex; align-items: center; gap: 10px; color: var(--text-white); }
+.header .logo-area .sys-name { font-size: 16px; font-weight: 600; letter-spacing: 1px; }
+.header .right-panel { display: flex; align-items: center; gap: 12px; }
+.header .right-panel .btn-icon { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: var(--text-white); cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 14px; transition: background 0.2s; }
+.header .right-panel .btn-icon:hover { background: rgba(255,255,255,0.25); }
+.header .right-panel .user-info { display: flex; align-items: center; gap: 8px; color: var(--text-white); cursor: pointer; }
+.header .right-panel .user-info .avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+
+.sidebar { width: 180px; background: var(--bg-100); border-right: 1px solid var(--border-100); position: fixed; top: 50px; left: 0; bottom: 0; overflow-y: auto; z-index: 999; }
+.sidebar .menu-item { height: 36px; line-height: 36px; padding: 0 16px; color: var(--text-100); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-size: 13px; border-left: 3px solid transparent; white-space: nowrap; }
+.sidebar .menu-item:hover { background: var(--bg-200); }
+.sidebar .menu-item.active { background: var(--primary-100); color: var(--text-white); border-left-color: var(--primary-200); }
+.sidebar .menu-item .menu-icon { font-size: 14px; width: 16px; text-align: center; }
+.sidebar .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.2s; }
+.sidebar .menu-item.expanded .arrow { transform: rotate(90deg); }
+.sidebar .sub-menu { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+.sidebar .sub-menu.open { max-height: 500px; }
+.sidebar .sub-menu .menu-item { padding-left: 40px; font-size: 12px; color: var(--text-200); }
+.sidebar .sub-menu .menu-item.active { background: transparent; color: var(--primary-100); border-left-color: var(--primary-100); font-weight: 500; }
+.sidebar .menu-divider { height: 1px; background: var(--border-100); margin: 4px 12px; }
+
+.main-area { margin-left: 180px; margin-top: 50px; padding: 0; min-height: calc(100vh - 50px); background: var(--bg-200); }
+.tab-bar { display: flex; align-items: center; background: var(--bg-100); border-bottom: 1px solid var(--border-100); height: 36px; padding: 0 8px; gap: 2px; overflow-x: auto; }
+.tab-bar .tab-item { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-200); border: 1px solid var(--border-100); border-bottom: none; border-radius: 4px 4px 0 0; cursor: pointer; font-size: 12px; color: var(--text-200); white-space: nowrap; transition: all 0.15s; }
+.tab-bar .tab-item.active { background: var(--bg-100); color: var(--primary-100); font-weight: 500; border-bottom: 2px solid var(--bg-100); margin-bottom: -1px; }
+.tab-bar .tab-item .tab-close { font-size: 10px; margin-left: 2px; color: var(--text-300); }
+.tab-bar .tab-item .tab-close:hover { color: var(--error); }
+.page-content { display: none; padding: 16px; }
+.page-content.active { display: block; }
+
+.card { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+.card-title { font-size: 14px; font-weight: 500; color: var(--text-100); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-100); }
+.stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+.stat-card { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 20px; position: relative; }
+.stat-card .stat-label { font-size: 13px; color: var(--text-200); margin-bottom: 8px; }
+.stat-card .stat-value { font-size: 28px; font-weight: 600; color: var(--primary-100); }
+.stat-card .stat-icon { position: absolute; right: 20px; top: 20px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.stat-card .stat-icon.green { background: var(--primary-300); color: var(--primary-100); }
+.stat-card .stat-icon.blue { background: #E6F7FF; color: var(--info); }
+.stat-card .stat-icon.orange { background: #FFF7E6; color: var(--warning); }
+.stat-card .stat-icon.red { background: #FFF1F0; color: var(--error); }
+
+.btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; border: none; transition: all 0.2s; }
+.btn-primary { background: var(--primary-100); color: var(--text-white); }
+.btn-primary:hover { background: var(--primary-200); }
+.btn-default { background: var(--bg-100); color: var(--text-100); border: 1px solid var(--border-100); }
+.btn-default:hover { background: var(--bg-200); }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+.search-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.search-bar label { color: var(--text-100); font-size: 13px; white-space: nowrap; }
+.search-bar input, .search-bar select { padding: 6px 12px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 13px; background: var(--bg-100); width: 180px; outline: none; }
+.search-bar input:focus, .search-bar select:focus { border-color: var(--primary-100); }
+.search-bar .date-range { display: flex; align-items: center; gap: 8px; }
+.search-bar .date-range span { color: var(--text-300); }
+
+.table-wrap { overflow-x: auto; }
+table.data-table { width: 100%; border-collapse: collapse; }
+table.data-table th { background: var(--bg-200); padding: 10px 12px; text-align: left; font-weight: 500; color: var(--text-100); border-bottom: 1px solid var(--border-100); font-size: 13px; white-space: nowrap; }
+table.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-100); font-size: 13px; }
+table.data-table tbody tr:hover { background: var(--bg-200); }
+table.data-table .link { color: var(--accent-100); text-decoration: none; margin-right: 10px; cursor: pointer; }
+table.data-table .link:hover { text-decoration: underline; }
+table.data-table .link.danger { color: var(--error); }
+table.data-table .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+.tag-success { background: #F6FFED; color: var(--success); }
+.tag-warning { background: #FFF7E6; color: var(--warning); }
+.tag-error { background: #FFF1F0; color: var(--error); }
+.tag-info { background: #E6F7FF; color: var(--info); }
+.tag-default { background: var(--bg-200); color: var(--text-300); }
+
+.pagination { display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 12px 0; }
+.pagination .total { color: var(--text-200); font-size: 12px; margin-right: 10px; }
+.pagination .page-btn { width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--border-100); background: var(--bg-100); cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.pagination .page-btn.active { background: var(--primary-100); color: var(--text-white); border-color: var(--primary-100); }
+.pagination .page-btn:disabled { color: var(--text-300); cursor: not-allowed; }
+.pagination select { padding: 4px 8px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 12px; }
+
+.steps-bar { display: flex; align-items: center; margin: 16px 0; padding: 0 20px; }
+.steps-bar .step { display: flex; align-items: center; gap: 8px; color: var(--text-300); font-size: 13px; }
+.steps-bar .step .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--bg-200); border: 2px solid var(--border-100); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; }
+.steps-bar .step.active .step-num { background: var(--primary-100); color: var(--text-white); border-color: var(--primary-100); }
+.steps-bar .step.active { color: var(--primary-100); font-weight: 500; }
+.steps-bar .step.done .step-num { background: var(--success); color: var(--text-white); border-color: var(--success); }
+.steps-bar .step-line { width: 40px; height: 2px; background: var(--border-100); margin: 0 8px; }
+.steps-bar .step-line.done { background: var(--success); }
+
+.form-row { display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
+.form-group { display: flex; flex-direction: column; gap: 4px; min-width: 200px; }
+.form-group label { font-size: 13px; color: var(--text-100); font-weight: 500; }
+.form-group input, .form-group select, .form-group textarea { padding: 6px 12px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 13px; background: var(--bg-100); outline: none; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary-100); }
+.form-group textarea { resize: vertical; min-height: 60px; }
+.form-group .required::after { content: ' *'; color: var(--error); }
+
+.timeline { padding: 10px 0; }
+.timeline .tl-item { display: flex; gap: 16px; padding: 10px 0; position: relative; }
+.timeline .tl-item::before { content: ''; position: absolute; left: 7px; top: 30px; bottom: -10px; width: 2px; background: var(--border-100); }
+.timeline .tl-item:last-child::before { display: none; }
+.timeline .tl-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--primary-100); flex-shrink: 0; margin-top: 2px; }
+.timeline .tl-dot.done { background: var(--success); }
+.timeline .tl-dot.current { background: var(--warning); box-shadow: 0 0 0 3px rgba(250,173,20,0.2); }
+.timeline .tl-content .tl-title { font-weight: 500; color: var(--text-100); font-size: 13px; }
+.timeline .tl-content .tl-desc { color: var(--text-200); font-size: 12px; margin-top: 2px; }
+.timeline .tl-content .tl-time { color: var(--text-300); font-size: 11px; }
+
+.chart-area { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.chart-box { border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; background: var(--bg-100); }
+.chart-box .chart-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: var(--text-100); }
+.chart-placeholder { height: 220px; background: var(--bg-200); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-300); font-size: 13px; }
+
+.mobile-frame { width: 375px; height: 700px; border: 1px solid var(--border-100); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin: 0 auto; }
+.mobile-frame .mobile-header { background: linear-gradient(180deg, #0A6651, #0D4F42); color: var(--text-white); padding: 10px 16px; font-size: 14px; font-weight: 500; text-align: center; }
+.mobile-frame .mobile-body { padding: 12px; background: var(--bg-200); height: calc(100% - 40px); overflow-y: auto; }
+.mobile-frame .mobile-item { background: var(--bg-100); border-radius: 6px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border-100); }
+.mobile-frame .mobile-item .mi-title { font-weight: 500; margin-bottom: 4px; font-size: 13px; }
+.mobile-frame .mobile-item .mi-sub { color: var(--text-200); font-size: 12px; }
+.mobile-frame .mobile-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.mobile-frame .mobile-badge.urgent { background: #FFF1F0; color: var(--error); }
+
+@media (max-width: 768px) {
+    .sidebar { width: 60px; }
+    .sidebar .menu-item span:not(.menu-icon) { display: none; }
+    .main-area { margin-left: 60px; }
+    .stat-cards { grid-template-columns: repeat(2, 1fr); }
+}
+/* 模态框通用样式 */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 2000; align-items: center; justify-content: center; }
+.modal-overlay.active { display: flex; }
+.modal { background: var(--bg-100); border-radius: 6px; overflow: hidden; }
+.modal.wide { width: 900px; }
+.modal-header { padding: 14px 20px; border-bottom: 1px solid var(--border-100); display: flex; justify-content: space-between; align-items: center; background: var(--bg-200); }
+.modal-header .modal-title { font-size: 15px; font-weight: 600; }
+.modal-header .modal-close { background: transparent; border: none; font-size: 18px; color: var(--text-300); cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+.modal-header .modal-close:hover { background: var(--bg-100); color: var(--text-100); }
+.modal-body { padding: 20px; max-height: 60vh; overflow-y: auto; }
+.modal-body .form-group { display: flex; align-items: center; margin-bottom: 14px; }
+.modal-body .form-group label { width: 90px; text-align: right; color: var(--text-200); font-size: 13px; margin-right: 12px; flex-shrink: 0; font-weight: 400; }
+.modal-body .form-group input:not([type="file"]),
+.modal-body .form-group select,
+.modal-body .form-group textarea { flex: 1; padding: 6px 12px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 13px; background: var(--bg-100); outline: none; }
+.modal-body .form-group input:focus,
+.modal-body .form-group select:focus,
+.modal-body .form-group textarea:focus { border-color: var(--primary-100); }
+.modal-body .form-group textarea { resize: vertical; min-height: 60px; }
+.modal-body .detail-section { border-top: 1px dashed var(--border-100); padding-top: 14px; margin-top: 8px; }
+.modal-body .detail-section .sec-title { font-size: 14px; font-weight: 500; color: var(--text-100); margin-bottom: 12px; }
+.modal-body .detail-row { display: flex; margin-bottom: 10px; }
+.modal-body .detail-row .dl { width: 90px; text-align: right; color: var(--text-200); font-size: 13px; margin-right: 12px; flex-shrink: 0; }
+.modal-body .detail-row .dv { font-size: 13px; color: var(--text-100); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.modal-footer { padding: 12px 20px; border-top: 1px solid var(--border-100); display: flex; justify-content: flex-end; gap: 10px; background: var(--bg-200); }
+</style>
+</head>
+
+<body>
+<header class="header">
+    <div class="logo-area">
+        <span style="font-size:20px;">◈</span>
+        <span class="sys-name">战略与投资管理系统</span>
+    </div>
+    <div class="right-panel">
+        <div class="btn-icon" title="消息">✉</div>
+        <div class="btn-icon" title="全屏">⛶</div>
+        <div class="user-info">
+            <div class="avatar">张</div>
+            <span style="font-size:13px;">管理员</span>
+        </div>
+    </div>
+</header>
+
+<aside class="sidebar" id="sidebar">
+    <div class="menu-item" data-page="home" data-tab="主页">
+        <span class="menu-icon">⌂</span><span>主页</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="devplan">
+        <span class="menu-icon">📋</span><span>发展规划管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="devplan">
+        <div class="menu-item" data-page="plan-compile" data-tab="规划编制管理">
+            <span>规划编制管理</span>
+        </div>
+        <div class="menu-item" data-page="plan-exec" data-tab="规划执行管理">
+            <span>规划执行管理</span>
+        </div>
+        <div class="menu-item" data-page="plan-adjust" data-tab="规划调整管理">
+            <span>规划调整管理</span>
+        </div>
+    </div>
+    <div class="menu-item" data-group="cooper">
+        <span class="menu-icon">🤝</span><span>战略合作管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="cooper">
+        <div class="menu-item" data-page="agree-list" data-tab="协议信息管理">
+            <span>协议信息管理</span>
+        </div>
+        <div class="menu-item" data-page="agree-lifecycle" data-tab="协议生命周期">
+            <span>协议生命周期</span>
+        </div>
+        <div class="menu-item" data-page="subsidiary" data-tab="二级公司管理">
+            <span>二级公司管理</span>
+        </div>
+    </div>
+    <div class="menu-item expanded" data-group="invest">
+        <span class="menu-icon">💰</span><span>投资管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu open" data-group="invest">
+        <div class="menu-item" data-page="invest-init" data-tab="前期立项管理">
+            <span>前期立项管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-decision" data-tab="投资决策管理">
+            <span>投资决策管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-impl" data-tab="项目实施管理">
+            <span>项目实施管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-eval" data-tab="总结评价管理">
+            <span>总结评价管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-index" data-tab="投资指标库">
+            <span>投资指标库</span>
+        </div>
+    </div>
+    <div class="menu-item" data-group="decision">
+        <span class="menu-icon">📊</span><span>辅助决策</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="decision">
+        <div class="menu-item" data-page="strategy-map" data-tab="战略地图">
+            <span>战略地图</span>
+        </div>
+        <div class="menu-item" data-page="project-overview" data-tab="项目总览">
+            <span>项目总览</span>
+        </div>
+        <div class="menu-item" data-page="invest-ops" data-tab="投资运营">
+            <span>投资运营</span>
+        </div>
+        <div class="menu-item" data-page="industry" data-tab="行业研判">
+            <span>行业研判</span>
+        </div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="system">
+        <span class="menu-icon">⚙</span><span>系统管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="system">
+        <div class="menu-item" data-page="user-mgmt" data-tab="用户管理">
+            <span>用户管理</span>
+        </div>
+        <div class="menu-item" data-page="role-mgmt" data-tab="权限管理">
+            <span>权限管理</span>
+        </div>
+    </div>
+</aside>
+<div class="main-area">
+    <div class="tab-bar"></div>
+<div class="page-content active" id="page-invest-init">
+        <div class="card">
+            <div class="action-bar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <button class="btn btn-primary btn-init-add">+ 立项发起</button>
+            </div>
+            <div class="search-bar" style="margin-bottom:12px;">
+                <label>项目类型：</label><select><option>全部</option><option>固定资产投资</option><option>股权投资</option><option>科技建设</option><option>其他项目</option></select>
+                <label>项目阶段：</label><select><option>全部</option><option>立项申请</option><option>部门会签</option><option>投委会评审</option><option>决策审议</option><option>前期工作</option></select>
+                <label>申报单位：</label><input type="text">
+                <label>时间：</label><input type="date" style="width:135px;"><span>-</span><input type="date" style="width:135px;">
+                <button class="btn btn-primary">查询</button><button class="btn btn-default">重置</button>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>序号</th><th>项目编号</th><th>项目名称</th><th>项目类型</th><th>申报单位</th><th>申报金额(万元)</th><th>申报时间</th><th>当前阶段</th><th>详情</th><th>更多</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td>XM-2025-001</td><td>新能源产业园区建设项目</td><td>固定资产投资</td><td>能源事业部</td><td>85,000</td><td>2025-01-15</td><td><span class="tag tag-success">立项批准</span></td><td class="link btn-init-detail">详情</td><td class="link btn-init-track">流程跟踪</td></tr>
+                        <tr><td>2</td><td>XM-2025-002</td><td>数字化转型技术平台</td><td>科技建设</td><td>数字化部</td><td>12,000</td><td>2025-02-20</td><td><span class="tag tag-warning">投委会评审</span></td><td class="link btn-init-detail">详情</td><td class="link btn-init-track">流程跟踪</td></tr>
+                        <tr><td>3</td><td>XM-2025-004</td><td>智慧物流中心项目</td><td>其他项目</td><td>物流事业部</td><td>35,000</td><td>2025-04-05</td><td><span class="tag tag-info">立项审核</span></td><td class="link btn-init-detail">详情</td><td class="link btn-init-track">流程跟踪</td></tr>
+                        <tr><td>4</td><td>XM-2025-006</td><td>风光储一体化基地</td><td>固定资产投资</td><td>新能源科技公司</td><td>120,000</td><td>2025-05-10</td><td><span class="tag tag-default">前期工作</span></td><td class="link btn-init-detail">详情</td><td class="link btn-init-record">前期工作记录</td></tr>
+                        <tr><td>5</td><td>XM-2025-007</td><td>海外矿业并购项目</td><td>股权投资</td><td>矿业事业部</td><td>200,000</td><td>2025-05-15</td><td><span class="tag tag-default">立项申请</span></td><td class="link btn-init-detail">详情</td><td class="link danger btn-init-withdraw">撤回</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <span class="total">共 23 条</span>
+                <button class="page-btn" disabled>‹</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">›</button>
+            </div>
+        </div>
+    </div>
+    <!-- 立项发起弹窗 -->
+    <div class="modal-overlay" id="init-add">
+        <div class="modal wide">
+            <div class="modal-header"><span class="modal-title">立项申请填报</span><button class="modal-close" onclick="closeModal('init-add')">&times;</button></div>
+            <style>
+.init-wizard-steps { display:flex;align-items:flex-start;justify-content:center;padding:24px 0 18px;border-bottom:1px solid var(--border-100);position:relative; }
+.init-wizard-step { display:flex;flex-direction:column;align-items:center;position:relative;flex:1;max-width:180px; }
+.init-wizard-step .step-circle { width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;transition:all 0.35s ease;z-index:2;border:none; }
+.init-wizard-step .step-circle.active { background:var(--primary-200);box-shadow:0 0 0 5px rgba(58,134,255,0.12); }
+.init-wizard-step .step-circle.done { background:var(--success);box-shadow:0 0 0 5px rgba(82,196,26,0.10); }
+.init-wizard-step .step-circle.pending { background:#d9d9d9;color:#999; }
+.init-wizard-step .step-label { margin-top:8px;font-size:13px;font-weight:500;line-height:1.4;text-align:center; }
+.init-wizard-step.active .step-label { color:var(--primary-200); }
+.init-wizard-step.done .step-label { color:var(--success); }
+.init-wizard-step.pending .step-label { color:var(--text-300); }
+.init-wizard-line { position:absolute;top:16px;left:calc(50% + 20px);width:calc(100% - 40px);height:2px;background:var(--border-100);z-index:1;border-radius:1px;transition:background 0.35s ease; }
+.init-wizard-step:last-child .init-wizard-line { display:none; }
+.init-wizard-step.done .init-wizard-line { background:var(--success); }
+
+/* ===== Step Panel ===== */
+.init-wizard-panel { display:none;padding:28px 32px 0;min-height:380px;overflow-y:auto; }
+.init-wizard-panel.active { display:block; }
+
+/* ===== Form Grid — 一行两列，左右对齐 ===== */
+.init-form-grid { display:grid;grid-template-columns:1fr 1fr;gap:0 36px; }
+.init-form-grid .form-group { display:flex;flex-direction:row;align-items:center;margin-bottom:18px;min-height:38px; }
+.init-form-grid .form-group label { width:112px;text-align:right;color:var(--text-200);font-size:13px;margin-right:14px;flex-shrink:0;line-height:1.5;font-weight:400;letter-spacing:0.2px; }
+.init-form-grid .form-group label .required::after { content:' *';color:var(--error);margin-left:1px;font-weight:600; }
+.init-form-grid .form-group input,
+.init-form-grid .form-group select {
+  flex:1;height:34px;padding:0 11px;border:1px solid var(--border-100);border-radius:4px;
+  font-size:13px;line-height:34px;outline:none;background:var(--bg-100);
+  transition:border-color 0.2s, box-shadow 0.2s; color:var(--text-100);
+}
+.init-form-grid .form-group input:hover,
+.init-form-grid .form-group select:hover { border-color:var(--border-200); }
+.init-form-grid .form-group input:focus,
+.init-form-grid .form-group select:focus {
+  border-color:var(--primary-200);box-shadow:0 0 0 3px rgba(58,134,255,0.08);
+}
+.init-form-grid .form-group input::placeholder,
+.init-form-grid .form-group select::placeholder { color:var(--text-300); }
+.init-form-grid .form-group.full-width { grid-column:1/-1; }
+.init-form-grid .form-group.full-width textarea {
+  flex:1;width:100%;padding:9px 12px;border:1px solid var(--border-100);border-radius:4px;
+  font-size:13px;outline:none;resize:vertical;min-height:88px;
+  background:var(--bg-100);line-height:1.6;color:var(--text-100);
+  transition:border-color 0.2s, box-shadow 0.2s;font-family:inherit;
+}
+.init-form-grid .form-group.full-width textarea:focus { border-color:var(--primary-200);box-shadow:0 0 0 3px rgba(58,134,255,0.08); }
+.init-form-grid .form-group.full-width textarea::placeholder { color:var(--text-300); }
+
+/* ===== Upload Zone ===== */
+.init-upload-zone {
+  border:1.5px dashed #d0d5dd;border-radius:8px;padding:44px 20px;text-align:center;cursor:pointer;
+  transition:all 0.25s ease;background:linear-gradient(135deg,#fafbfc 0%,#f5f7fa 100%);margin-bottom:14px;
+}
+.init-upload-zone:hover { border-color:var(--primary-200);background:linear-gradient(135deg,#eff4ff 0%,#f0f7ff 100%); }
+.init-upload-icon { font-size:40px;margin-bottom:10px;display:inline-block;filter:grayscale(0.5);opacity:0.45;transition:all 0.25s; }
+.init-upload-zone:hover .init-upload-icon { filter:grayscale(0);opacity:0.75;transform:translateY(-2px); }
+.init-upload-text { font-size:14px;color:var(--text-200);margin-bottom:4px;font-weight:500; }
+.init-upload-hint { font-size:12px;color:var(--text-300); }
+
+/* ===== File List ===== */
+.init-file-list { margin-top:14px; }
+.init-file-item {
+  display:flex;align-items:center;gap:10px;padding:9px 14px;border:1px solid var(--border-100);
+  border-radius:6px;margin-bottom:7px;font-size:12.5px;background:var(--bg-100);
+  transition:background 0.15s, border-color 0.15s;
+}
+.init-file-item:hover { background:var(--bg-200);border-color:var(--border-200); }
+.init-file-item .file-name { flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-100); }
+.init-file-item .file-del { color:var(--error);cursor:pointer;font-weight:600;font-size:14px;opacity:0.65;transition:opacity 0.15s; }
+.init-file-item .file-del:hover { opacity:1; }
+
+/* ===== Template Button ===== */
+.init-tpl-btn {
+  display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border:1px solid var(--border-100);
+  border-radius:5px;font-size:12.5px;color:var(--text-200);cursor:pointer;
+  background:linear-gradient(var(--bg-100),#fff);transition:all 0.2s;font-weight:500;
+}
+.init-tpl-btn:hover { border-color:var(--primary-200);color:var(--primary-200);box-shadow:0 2px 8px rgba(58,134,255,0.08); }
+
+/* ===== Confirm Box ===== */
+.init-confirm-box {
+  background:linear-gradient(135deg,var(--bg-200),var(--bg-100));
+  border:1px solid var(--border-100);border-radius:8px;padding:20px 24px;margin-bottom:18px;
+}
+.init-confirm-box h4 { font-size:14px;font-weight:600;color:var(--text-100);margin:0 0 14px; }
+.init-confirm-row { display:flex;margin-bottom:9px;font-size:13px;line-height:1.6; }
+.init-confirm-row .cf-lbl { color:var(--text-300);width:96px;flex-shrink:0; }
+.init-confirm-row .cf-val { color:var(--text-100);font-weight:500; }
+
+/* ===== Footer ===== */
+.init-wizard-footer {
+  padding:16px 32px 22px;display:flex;justify-content:flex-end;gap:10px;
+  border-top:1px solid var(--border-100);background:linear-gradient(to top,var(--bg-200),transparent);
+}
+            </style>
+
+            <!-- 步骤条 -->
+            <div class="init-wizard-steps">
+                <div class="init-wizard-step active" data-step="1"><div class="step-circle active">1</div><span class="step-label">基础信息填写</span><div class="init-wizard-line"></div></div>
+                <div class="init-wizard-step pending" data-step="2"><div class="step-circle pending">2</div><span class="step-label">附件上传</span><div class="init-wizard-line"></div></div>
+                <div class="init-wizard-step pending" data-step="3"><div class="step-circle pending">3</div><span class="step-label">提交审批</span></div>
+            </div>
+
+            <!-- Step 1 -->
+            <div class="init-wizard-panel active" id="init-step-1">
+                <h4 style="font-size:15px;font-weight:600;color:var(--text-100);margin:0 0 16px;">基础信息</h4>
+                <div class="init-form-grid">
+                    <div class="form-group"><label><span class="required">项目名称</span></label><input type="text" id="init-f-name" placeholder="请输入项目名称" /></div>
+                    <div class="form-group"><label><span class="required">投资类型</span></label><select id="init-f-type"><option value="">请选择</option><option>研发项目</option><option>固定资产投资</option><option>股权投资</option><option>科技建设</option><option>其他项目</option></select></div>
+                    <div class="form-group"><label><span class="required">所属领域</span></label><select id="init-f-field"><option value="">请选择</option><option>制造业</option><option>能源</option><option>矿业</option><option>物流</option><option>金融</option><option>科技</option></select></div>
+                    <div class="form-group"><label><span class="required">所属区域</span></label><select id="init-f-region"><option value="">请选择</option><option>华北地区</option><option>华东地区</option><option>华南地区</option><option>西南地区</option><option>西北地区</option><option>东北地区</option></select></div>
+                    <div class="form-group"><label><span class="required">估算投资额(万元)</span></label><input type="number" id="init-f-amount" placeholder="请输入估算金额" /></div>
+                    <div class="form-group"><label><span class="required">发起人联系电话</span></label><input type="tel" id="init-f-phone" placeholder="请输入手机号码" value="13800138000" /></div>
+                    <div class="form-group full-width" style="align-items:flex-start;"><label style="padding-top:7px;"><span class="required">项目概况</span></label><textarea id="init-f-desc" placeholder="请描述项目的背景、目标及主要内容"></textarea></div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="init-wizard-panel" id="init-step-2">
+                <h4 style="font-size:15px;font-weight:600;color:var(--text-100);margin:0 0 16px;">附件材料</h4>
+                <div style="display:flex;align-items:center;margin-bottom:12px;"><label style="font-size:13px;color:var(--text-200);"><span style="color:var(--error);">*</span> 上传附件</label></div>
+                <div class="init-upload-zone" onclick="document.getElementById('init-file-input').click()">
+                    <div class="init-upload-icon">☁</div>
+                    <div class="init-upload-text">点击或将文件拖拽到此处上传</div>
+                    <div class="init-upload-hint">支持 PDF、Word、Excel、JPG、PNG 格式，单个文件不超过10MB</div>
+                </div>
+                <input type="file" id="init-file-input" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" style="display:none;" onchange="handleInitFileUpload(this)" />
+                <div class="init-file-list" id="init-file-list"></div>
+                <div style="margin-top:10px;">
+                    <span class="init-tpl-btn" onclick="alert('正在下载立项申请模板...\n\n文件：立项申请填报模板.docx')">⬇ 下载立项申请模板</span>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="init-wizard-panel" id="init-step-3">
+                <h4 style="font-size:15px;font-weight:600;color:var(--text-100);margin:0 0 14px;">提交审批</h4>
+                <div class="init-confirm-box">
+                    <h4>请确认以下信息</h4>
+                    <div class="init-confirm-row"><span class="cf-lbl">项目名称：</span><span class="cf-val" id="cf-name">-</span></div>
+                    <div class="init-confirm-row"><span class="cf-lbl">投资类型：</span><span class="cf-val" id="cf-type">-</span></div>
+                    <div class="init-confirm-row"><span class="cf-lbl">所属领域：</span><span class="cf-val" id="cf-field">-</span></div>
+                    <div class="init-confirm-row"><span class="cf-lbl">所属区域：</span><span class="cf-val" id="cf-region">-</span></div>
+                    <div class="init-confirm-row"><span class="cf-lbl">估算投资额：</span><span class="cf-val" id="cf-amount">-</span></div>
+                    <div class="init-confirm-row"><span class="cf-lbl">附件数量：</span><span class="cf-val" id="cf-files">0个</span></div>
+                </div>
+                <div style="display:flex;align-items:center;margin-bottom:8px;"><label style="font-size:13px;font-weight:600;color:var(--text-100);">审批意见</label></div>
+                <textarea id="init-comment" placeholder="如有需要，可在此处添加审批意见" style="width:100%;padding:10px 12px;border:1px solid var(--border-100);border-radius:4px;font-size:13px;resize:vertical;min-height:90px;background:var(--bg-100);font-family:inherit;"></textarea>
+            </div>
+
+            <div class="init-wizard-footer">
+                <button class="btn btn-default" onclick="alert('草稿已保存！');">保存草稿</button>
+                <button class="btn btn-default" onclick="resetInitWizard()">重置</button>
+                <button class="btn btn-default" id="init-prev-btn" onclick="goInitStep(-1)" disabled style="opacity:0.45;">上一步</button>
+                <button class="btn btn-primary" id="init-next-btn" onclick="goInitStep(1)">下一步</button>
+            </div>
+        </div>
+    </div>
+    <!-- 项目详情弹窗 -->
+    <div class="modal-overlay" id="init-detail">
+        <div class="modal wide">
+            <div class="modal-header"><span class="modal-title">项目详情 — XM-2025-001</span><button class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <div class="detail-row"><span class="dl">项目编号：</span><span class="dv">XM-2025-001</span></div>
+                <div class="detail-row"><span class="dl">项目名称：</span><span class="dv">新能源产业园区建设项目</span></div>
+                <div class="detail-row"><span class="dl">项目类型：</span><span class="dv">固定资产投资</span></div>
+                <div class="detail-row"><span class="dl">申报单位：</span><span class="dv">能源事业部</span></div>
+                <div class="detail-row"><span class="dl">申报金额：</span><span class="dv">85,000 万元</span></div>
+                <div class="detail-row"><span class="dl">申报日期：</span><span class="dv">2025-01-15</span></div>
+                <div class="detail-row"><span class="dl">当前阶段：</span><span class="dv"><span class="tag tag-success">立项批准</span></span></div>
+                <div class="detail-section">
+                    <div class="sec-title">项目描述</div>
+                    <div style="padding:12px;background:var(--bg-200);border-radius:4px;font-size:13px;line-height:1.8;color:var(--text-100);">本项目拟在新能源产业园区建设光伏组件生产基地，总规划占地500亩，分两期建设。一期建设200MW光伏组件生产线，二期扩展至500MW，配套建设研发中心和仓储物流设施。</div>
+                </div>
+                <div class="detail-section">
+                    <div class="sec-title">立项流程</div>
+                    <div class="timeline">
+                        <div class="tl-item"><div class="tl-dot done"></div><div class="tl-content"><div class="tl-title">提出立项申请</div><div class="tl-time">2025-01-15  张强</div></div></div>
+                        <div class="tl-item"><div class="tl-dot done"></div><div class="tl-content"><div class="tl-title">部门审核</div><div class="tl-time">2025-01-22  李婷</div></div></div>
+                        <div class="tl-item"><div class="tl-dot done"></div><div class="tl-content"><div class="tl-title">投委会评审</div><div class="tl-time">2025-02-10  评审通过</div></div></div>
+                        <div class="tl-item"><div class="tl-dot current"></div><div class="tl-content"><div class="tl-title">立项批准</div><div class="tl-time">2025-02-28</div></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('init-detail')">关闭</button></div>
+        </div>
+    </div>
+    <!-- 流程跟踪弹窗 -->
+    <div class="modal-overlay" id="init-track">
+        <div class="modal wide">
+            <div class="modal-header"><span class="modal-title">流程跟踪 — XM-2025-001</span><button class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <div class="steps-bar">
+                    <div class="step done"><span class="step-num">✓</span>立项申请</div><div class="step-line done"></div>
+                    <div class="step done"><span class="step-num">✓</span>部门审核</div><div class="step-line done"></div>
+                    <div class="step active"><span class="step-num">3</span>投委会评审</div><div class="step-line"></div>
+                    <div class="step"><span class="step-num">4</span>决策审议</div><div class="step-line"></div>
+                    <div class="step"><span class="step-num">5</span>立项批准</div>
+                </div>
+                <div class="detail-section">
+                    <div class="sec-title">审批进度</div>
+                    <div class="timeline">
+                        <div class="tl-item"><div class="tl-dot done"></div><div class="tl-content"><div class="tl-title">立项申请提交</div><div class="tl-desc">申请人：张强 | 附件：项目建议书</div><div class="tl-time">2025-01-15</div></div></div>
+                        <div class="tl-item"><div class="tl-dot done"></div><div class="tl-content"><div class="tl-title">部门审核通过</div><div class="tl-desc">审核人：李婷 | 意见：项目符合发展战略，建议推进</div><div class="tl-time">2025-01-22</div></div></div>
+                        <div class="tl-item"><div class="tl-dot done"></div><div class="tl-content"><div class="tl-title">投资管理部会签</div><div class="tl-desc">所有会签部门均同意，无异议</div><div class="tl-time">2025-02-05</div></div></div>
+                        <div class="tl-item"><div class="tl-dot current"></div><div class="tl-content"><div class="tl-title">投委会评审中</div><div class="tl-desc">等待投委会审议会议安排</div><div class="tl-time">2025-02-10</div></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('init-track')">关闭</button></div>
+        </div>
+    </div>
+    <!-- 前期工作记录弹窗 -->
+    <div class="modal-overlay" id="init-record">
+        <div class="modal wide">
+            <div class="modal-header"><span class="modal-title">前期工作记录 — XM-2025-006</span><button class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <div class="detail-row"><span class="dl">项目编号：</span><span class="dv">XM-2025-006</span></div>
+                <div class="detail-row"><span class="dl">项目名称：</span><span class="dv">风光储一体化基地</span></div>
+                <div class="detail-section">
+                    <div class="sec-title">前期工作列表</div>
+                    <table class="data-table">
+                        <thead><tr><th>序号</th><th>工作事项</th><th>负责部门</th><th>开始日期</th><th>完成日期</th><th>状态</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>可研报告编制</td><td>新能源科技公司</td><td>2025-05-10</td><td>2025-06-30</td><td><span class="tag tag-info">进行中</span></td></tr>
+                            <tr><td>2</td><td>环境评估</td><td>环保部门</td><td>2025-06-01</td><td>2025-07-15</td><td><span class="tag tag-default">待启动</span></td></tr>
+                            <tr><td>3</td><td>用地预审</td><td>规划部门</td><td>2025-06-15</td><td>2025-08-01</td><td><span class="tag tag-default">待启动</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('init-record')">关闭</button><button class="btn btn-primary" onclick="alert('前期工作记录已更新！');closeModal('init-record')">新增记录</button></div>
+        </div>
+    </div>
+    <!-- 撤回确认弹窗 -->
+    <div class="modal-overlay" id="init-withdraw">
+        <div class="modal wide">
+            <div class="modal-header"><span class="modal-title">撤回立项申请</span><button class="modal-close">&times;</button></div>
+            <div class="modal-body" style="padding:30px 20px;text-align:center;">
+                <div style="font-size:40px;margin-bottom:16px;">⚠</div>
+                <div style="font-size:15px;font-weight:500;margin-bottom:8px;">确认撤回立项申请？</div>
+                <div style="font-size:13px;color:var(--text-200);margin-bottom:16px;">项目编号：XM-2025-007 | 海外矿业并购项目</div>
+                <div style="font-size:12px;color:var(--error);margin-bottom:12px;">撤回后需重新提交立项，请确认。</div>
+                <div class="form-group" style="justify-content:center;"><label style="width:auto;">撤回原因：</label><textarea rows="3" style="width:400px;flex:none;" placeholder="请输入撤回原因..."></textarea></div>
+            </div>
+            <div class="modal-footer" style="justify-content:center;"><button class="btn btn-default" onclick="closeModal('init-withdraw')">取消</button><button class="btn btn-primary" style="background:var(--error);" onclick="alert('立项申请已撤回！');closeModal('init-withdraw')">确认撤回</button></div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.addEventListener('click', function(e) {
+        var item = e.target.closest('.menu-item');
+        if (!item) return;
+        var group = item.dataset.group;
+        if (group) {
+            var sub = sidebar.querySelector('.sub-menu[data-group="' + group + '"]');
+            if (sub) { sub.classList.toggle('open'); item.classList.toggle('expanded'); }
+        }
+    });
+
+    // 模态框交互函数
+    window.openModal = function(id) { document.getElementById(id).classList.add('active'); };
+    window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
+
+    // 关闭按钮事件
+    document.querySelectorAll('.modal-close').forEach(function(btn) {
+        btn.addEventListener('click', function() { closeModal(btn.closest('.modal-overlay').id); });
+    });
+    // 点击遮罩关闭
+    document.querySelectorAll('.modal-overlay').forEach(function(ov) {
+        ov.addEventListener('click', function(e) { if (e.target === ov) closeModal(ov.id); });
+    });
+
+    // 前期立项管理-模态框交互
+    var initPage = document.getElementById('page-invest-init');
+    if (initPage) {
+        initPage.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-init-add')) openModal('init-add');
+            if (e.target.classList.contains('btn-init-detail')) openModal('init-detail');
+            if (e.target.classList.contains('btn-init-track')) openModal('init-track');
+            if (e.target.classList.contains('btn-init-record')) openModal('init-record');
+            if (e.target.classList.contains('btn-init-withdraw')) openModal('init-withdraw');
+        });
+    }
+
+    var _initCurrentStep = 1;
+    var _initFiles = [];
+    window.goInitStep = function(dir) {
+        var ns = _initCurrentStep + dir;
+        if (ns < 1 || ns > 3) return;
+        if (dir > 0 && ns === 3) { syncConfirmData(); }
+        if (dir > 0 && ns === 4) {
+            alert('立项申请已提交！\n\n项目名称：' + (document.getElementById('init-f-name').value || '-') + '\n投资类型：' + (document.getElementById('init-f-type').options[document.getElementById('init-f-type').selectedIndex].text || '-') + '\n估算投资额：' + (document.getElementById('init-f-amount').value || '-') + '万元');
+            closeModal('init-add'); return;
+        }
+        _initCurrentStep = ns; updateInitWizardUI();
+    };
+    window.resetInitWizard = function() {
+        _initCurrentStep = 1; _initFiles = [];
+        document.getElementById('init-f-name').value = '';
+        document.getElementById('init-f-type').selectedIndex = 0;
+        document.getElementById('init-f-field').selectedIndex = 0;
+        document.getElementById('init-f-region').selectedIndex = 0;
+        document.getElementById('init-f-amount').value = '';
+        document.getElementById('init-f-phone').value = '13800138000';
+        document.getElementById('init-f-desc').value = '';
+        document.getElementById('init-file-list').innerHTML = '';
+        document.getElementById('init-comment').value = '';
+        updateInitWizardUI();
+    };
+    window.handleInitFileUpload = function(input) {
+        var listEl = document.getElementById('init-file-list');
+        for (var i = 0; i < input.files.length; i++) {
+            (function(file) {
+                if (file.size > 10 * 1024 * 1024) { alert(file.name + ' 超过10MB限制，请压缩后上传。'); return; }
+                _initFiles.push(file);
+                var item = document.createElement('div'); item.className = 'init-file-item';
+                item.innerHTML = '<span class="file-name">📎 ' + file.name + ' (' + Math.round(file.size / 1024) + 'KB)</span><span class="file-del" onclick="this.parentElement.remove();">✕</span>';
+                listEl.appendChild(item);
+            })(input.files[i]);
+        }
+        input.value = '';
+    };
+    function syncConfirmData() {
+        document.getElementById('cf-name').textContent = document.getElementById('init-f-name').value || '-';
+        document.getElementById('cf-type').textContent = document.getElementById('init-f-type').options[document.getElementById('init-f-type').selectedIndex].text || '-';
+        document.getElementById('cf-field').textContent = document.getElementById('init-f-field').options[document.getElementById('init-f-field').selectedIndex].text || '-';
+        document.getElementById('cf-region').textContent = document.getElementById('init-f-region').options[document.getElementById('init-f-region').selectedIndex].text || '-';
+        var amt = document.getElementById('init-f-amount').value;
+        document.getElementById('cf-amount').textContent = amt ? amt + '万元' : '-';
+        document.getElementById('cf-files').textContent = _initFiles.length + '个';
+    }
+    function updateInitWizardUI() {
+        var steps = document.querySelectorAll('#init-add .init-wizard-step');
+        for (var s = 1; s <= 3; s++) {
+            var el = steps[s - 1], circ = el.querySelector('.step-circle');
+            el.classList.remove('active', 'done', 'pending'); circ.classList.remove('active', 'done', 'pending');
+            if (s < _initCurrentStep) { el.classList.add('done'); circ.classList.add('done'); circ.innerHTML = '&#10003;'; }
+            else if (s === _initCurrentStep) { el.classList.add('active'); circ.classList.add('active'); circ.textContent = s; }
+            else { el.classList.add('pending'); circ.classList.add('pending'); circ.textContent = s; }
+        }
+        var panels = document.querySelectorAll('#init-add .init-wizard-panel');
+        for (var p = 1; p <= 3; p++) { panels[p - 1].classList.toggle('active', p === _initCurrentStep); }
+        var prevBtn = document.getElementById('init-prev-btn'), nextBtn = document.getElementById('init-next-btn');
+        prevBtn.disabled = (_initCurrentStep === 1); prevBtn.style.opacity = (_initCurrentStep === 1) ? '0.45' : '1';
+        nextBtn.textContent = (_initCurrentStep === 3) ? '提交审批' : '下一步';
+        nextBtn.style.background = (_initCurrentStep === 3) ? '#52C41A' : '';
+    }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>战略与投资管理系统</title>
+<style>
+:root {
+    --primary-100: #0A6651;
+    --primary-200: #118A73;
+    --primary-300: #E8F5F2;
+    --accent-100: #2E8B57;
+    --accent-200: #0D4F42;
+    --text-100: #333333;
+    --text-200: #666666;
+    --text-300: #999999;
+    --text-white: #FFFFFF;
+    --bg-100: #FFFFFF;
+    --bg-200: #F5F5F5;
+    --bg-300: #EEEEEE;
+    --border-100: #E0E0E0;
+    --border-200: #D0D0D0;
+    --success: #52C41A;
+    --warning: #FAAD14;
+    --error: #FF4D4F;
+    --info: #1890FF;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg-200); color: var(--text-100); min-height: 100vh; font-size: 13px; }
+.header { height: 50px; background: linear-gradient(180deg, #0A6651 0%, #0D4F42 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+.header .logo-area { display: flex; align-items: center; gap: 10px; color: var(--text-white); }
+.header .logo-area .sys-name { font-size: 16px; font-weight: 600; letter-spacing: 1px; }
+.header .right-panel { display: flex; align-items: center; gap: 12px; }
+.header .right-panel .btn-icon { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: var(--text-white); cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 14px; transition: background 0.2s; }
+.header .right-panel .btn-icon:hover { background: rgba(255,255,255,0.25); }
+.header .right-panel .user-info { display: flex; align-items: center; gap: 8px; color: var(--text-white); cursor: pointer; }
+.header .right-panel .user-info .avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+
+.sidebar { width: 180px; background: var(--bg-100); border-right: 1px solid var(--border-100); position: fixed; top: 50px; left: 0; bottom: 0; overflow-y: auto; z-index: 999; }
+.sidebar .menu-item { height: 36px; line-height: 36px; padding: 0 16px; color: var(--text-100); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-size: 13px; border-left: 3px solid transparent; white-space: nowrap; }
+.sidebar .menu-item:hover { background: var(--bg-200); }
+.sidebar .menu-item.active { background: var(--primary-100); color: var(--text-white); border-left-color: var(--primary-200); }
+.sidebar .menu-item .menu-icon { font-size: 14px; width: 16px; text-align: center; }
+.sidebar .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.2s; }
+.sidebar .menu-item.expanded .arrow { transform: rotate(90deg); }
+.sidebar .sub-menu { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+.sidebar .sub-menu.open { max-height: 500px; }
+.sidebar .sub-menu .menu-item { padding-left: 40px; font-size: 12px; color: var(--text-200); }
+.sidebar .sub-menu .menu-item.active { background: transparent; color: var(--primary-100); border-left-color: var(--primary-100); font-weight: 500; }
+.sidebar .menu-divider { height: 1px; background: var(--border-100); margin: 4px 12px; }
+
+.main-area { margin-left: 180px; margin-top: 50px; padding: 0; min-height: calc(100vh - 50px); background: var(--bg-200); }
+.tab-bar { display: flex; align-items: center; background: var(--bg-100); border-bottom: 1px solid var(--border-100); height: 36px; padding: 0 8px; gap: 2px; overflow-x: auto; }
+.tab-bar .tab-item { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-200); border: 1px solid var(--border-100); border-bottom: none; border-radius: 4px 4px 0 0; cursor: pointer; font-size: 12px; color: var(--text-200); white-space: nowrap; transition: all 0.15s; }
+.tab-bar .tab-item.active { background: var(--bg-100); color: var(--primary-100); font-weight: 500; border-bottom: 2px solid var(--bg-100); margin-bottom: -1px; }
+.tab-bar .tab-item .tab-close { font-size: 10px; margin-left: 2px; color: var(--text-300); }
+.tab-bar .tab-item .tab-close:hover { color: var(--error); }
+.page-content { display: none; padding: 16px; }
+.page-content.active { display: block; }
+
+.card { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+.card-title { font-size: 14px; font-weight: 500; color: var(--text-100); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-100); }
+.stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+.stat-card { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 20px; position: relative; }
+.stat-card .stat-label { font-size: 13px; color: var(--text-200); margin-bottom: 8px; }
+.stat-card .stat-value { font-size: 28px; font-weight: 600; color: var(--primary-100); }
+.stat-card .stat-icon { position: absolute; right: 20px; top: 20px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.stat-card .stat-icon.green { background: var(--primary-300); color: var(--primary-100); }
+.stat-card .stat-icon.blue { background: #E6F7FF; color: var(--info); }
+.stat-card .stat-icon.orange { background: #FFF7E6; color: var(--warning); }
+.stat-card .stat-icon.red { background: #FFF1F0; color: var(--error); }
+
+.btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; border: none; transition: all 0.2s; }
+.btn-primary { background: var(--primary-100); color: var(--text-white); }
+.btn-primary:hover { background: var(--primary-200); }
+.btn-default { background: var(--bg-100); color: var(--text-100); border: 1px solid var(--border-100); }
+.btn-default:hover { background: var(--bg-200); }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+.search-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.search-bar label { color: var(--text-100); font-size: 13px; white-space: nowrap; }
+.search-bar input, .search-bar select { padding: 6px 12px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 13px; background: var(--bg-100); width: 180px; outline: none; }
+.search-bar input:focus, .search-bar select:focus { border-color: var(--primary-100); }
+.search-bar .date-range { display: flex; align-items: center; gap: 8px; }
+.search-bar .date-range span { color: var(--text-300); }
+
+.table-wrap { overflow-x: auto; }
+table.data-table { width: 100%; border-collapse: collapse; }
+table.data-table th { background: var(--bg-200); padding: 10px 12px; text-align: left; font-weight: 500; color: var(--text-100); border-bottom: 1px solid var(--border-100); font-size: 13px; white-space: nowrap; }
+table.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-100); font-size: 13px; white-space: nowrap; }
+table.data-table tbody tr:hover { background: var(--bg-200); }
+table.data-table .link { color: var(--accent-100); text-decoration: none; margin-right: 10px; cursor: pointer; }
+table.data-table .link:hover { text-decoration: underline; }
+table.data-table .link.danger { color: var(--error); }
+table.data-table .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+.tag-success { background: #F6FFED; color: var(--success); }
+.tag-warning { background: #FFF7E6; color: var(--warning); }
+.tag-error { background: #FFF1F0; color: var(--error); }
+.tag-info { background: #E6F7FF; color: var(--info); }
+.tag-default { background: var(--bg-200); color: var(--text-300); }
+
+.pagination { display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 12px 0; }
+.pagination .total { color: var(--text-200); font-size: 12px; margin-right: 10px; }
+.pagination .page-btn { width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--border-100); background: var(--bg-100); cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.pagination .page-btn.active { background: var(--primary-100); color: var(--text-white); border-color: var(--primary-100); }
+.pagination .page-btn:disabled { color: var(--text-300); cursor: not-allowed; }
+.pagination select { padding: 4px 8px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 12px; }
+
+.steps-bar { display: flex; align-items: center; margin: 16px 0; padding: 0 20px; }
+.steps-bar .step { display: flex; align-items: center; gap: 8px; color: var(--text-300); font-size: 13px; }
+.steps-bar .step .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--bg-200); border: 2px solid var(--border-100); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; }
+.steps-bar .step.active .step-num { background: var(--primary-100); color: var(--text-white); border-color: var(--primary-100); }
+.steps-bar .step.active { color: var(--primary-100); font-weight: 500; }
+.steps-bar .step.done .step-num { background: var(--success); color: var(--text-white); border-color: var(--success); }
+.steps-bar .step-line { width: 40px; height: 2px; background: var(--border-100); margin: 0 8px; }
+.steps-bar .step-line.done { background: var(--success); }
+
+.form-row { display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
+.form-group { display: flex; flex-direction: column; gap: 4px; min-width: 200px; }
+.form-group label { font-size: 13px; color: var(--text-100); font-weight: 500; }
+.form-group input, .form-group select, .form-group textarea { padding: 6px 12px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 13px; background: var(--bg-100); outline: none; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary-100); }
+.form-group textarea { resize: vertical; min-height: 60px; }
+.form-group .required::after { content: ' *'; color: var(--error); }
+
+.timeline { padding: 10px 0; }
+.timeline .tl-item { display: flex; gap: 16px; padding: 10px 0; position: relative; }
+.timeline .tl-item::before { content: ''; position: absolute; left: 7px; top: 30px; bottom: -10px; width: 2px; background: var(--border-100); }
+.timeline .tl-item:last-child::before { display: none; }
+.timeline .tl-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--primary-100); flex-shrink: 0; margin-top: 2px; }
+.timeline .tl-dot.done { background: var(--success); }
+.timeline .tl-dot.current { background: var(--warning); box-shadow: 0 0 0 3px rgba(250,173,20,0.2); }
+.timeline .tl-content .tl-title { font-weight: 500; color: var(--text-100); font-size: 13px; }
+.timeline .tl-content .tl-desc { color: var(--text-200); font-size: 12px; margin-top: 2px; }
+.timeline .tl-content .tl-time { color: var(--text-300); font-size: 11px; }
+
+.chart-area { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.chart-box { border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; background: var(--bg-100); }
+.chart-box .chart-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: var(--text-100); }
+.chart-placeholder { height: 220px; background: var(--bg-200); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-300); font-size: 13px; }
+
+.mobile-frame { width: 375px; height: 700px; border: 1px solid var(--border-100); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin: 0 auto; }
+.mobile-frame .mobile-header { background: linear-gradient(180deg, #0A6651, #0D4F42); color: var(--text-white); padding: 10px 16px; font-size: 14px; font-weight: 500; text-align: center; }
+.mobile-frame .mobile-body { padding: 12px; background: var(--bg-200); height: calc(100% - 40px); overflow-y: auto; }
+.mobile-frame .mobile-item { background: var(--bg-100); border-radius: 6px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border-100); }
+.mobile-frame .mobile-item .mi-title { font-weight: 500; margin-bottom: 4px; font-size: 13px; }
+.mobile-frame .mobile-item .mi-sub { color: var(--text-200); font-size: 12px; }
+.mobile-frame .mobile-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.mobile-frame .mobile-badge.urgent { background: #FFF1F0; color: var(--error); }
+
+@media (max-width: 768px) {
+    .sidebar { width: 60px; }
+    .sidebar .menu-item span:not(.menu-icon) { display: none; }
+    .main-area { margin-left: 60px; }
+    .stat-cards { grid-template-columns: repeat(2, 1fr); }
+}
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 2000; align-items: center; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--bg-100); border-radius: 8px; width: 960px; max-width: 95vw; max-height: 85vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(0,0,0,0.15); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border-100); }
+.modal-header .modal-title { font-size: 16px; font-weight: 600; color: var(--text-100); }
+.modal-header .modal-close { width: 28px; height: 28px; border-radius: 4px; border: none; background: var(--bg-200); cursor: pointer; font-size: 16px; color: var(--text-200); display: flex; align-items: center; justify-content: center; }
+.modal-header .modal-close:hover { background: var(--bg-300); color: var(--text-100); }
+.modal-body { padding: 20px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--border-100); }
+.progress-bar-wrap { height: 10px; background: var(--bg-200); border-radius: 5px; overflow: hidden; flex: 1; }
+.progress-bar-fill { height: 100%; border-radius: 5px; transition: width 0.3s; }
+.progress-bar-fill.good { background: linear-gradient(to right, #0A6651, #118A73); }
+.progress-bar-fill.warn { background: linear-gradient(to right, #FAA714, #F5C068); }
+.progress-bar-fill.danger { background: linear-gradient(to right, #FF4D4F, #FF7875); }
+</style>
+</head>
+
+<body>
+<header class="header">
+    <div class="logo-area">
+        <span style="font-size:20px;">◈</span>
+        <span class="sys-name">战略与投资管理系统</span>
+    </div>
+    <div class="right-panel">
+        <div class="btn-icon" title="消息">✉</div>
+        <div class="btn-icon" title="全屏">⛶</div>
+        <div class="user-info">
+            <div class="avatar">张</div>
+            <span style="font-size:13px;">管理员</span>
+        </div>
+    </div>
+</header>
+
+<aside class="sidebar" id="sidebar">
+    <div class="menu-item" data-page="home" data-tab="主页">
+        <span class="menu-icon">⌂</span><span>主页</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item expanded" data-group="devplan">
+        <span class="menu-icon">📋</span><span>发展规划管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu open" data-group="devplan">
+        <div class="menu-item" data-page="plan-compile" data-tab="规划编制管理">
+            <span>规划编制管理</span>
+        </div>
+        <div class="menu-item" data-page="plan-exec" data-tab="规划执行管理">
+            <span>规划执行管理</span>
+        </div>
+        <div class="menu-item" data-page="plan-adjust" data-tab="规划调整管理">
+            <span>规划调整管理</span>
+        </div>
+    </div>
+    <div class="menu-item" data-group="cooper">
+        <span class="menu-icon">🤝</span><span>战略合作管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="cooper">
+        <div class="menu-item" data-page="agree-list" data-tab="协议信息管理">
+            <span>协议信息管理</span>
+        </div>
+        <div class="menu-item" data-page="agree-lifecycle" data-tab="协议生命周期">
+            <span>协议生命周期</span>
+        </div>
+        <div class="menu-item" data-page="subsidiary" data-tab="二级公司管理">
+            <span>二级公司管理</span>
+        </div>
+    </div>
+    <div class="menu-item" data-group="invest">
+        <span class="menu-icon">💰</span><span>投资管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="invest">
+        <div class="menu-item" data-page="invest-init" data-tab="前期立项管理">
+            <span>前期立项管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-decision" data-tab="投资决策管理">
+            <span>投资决策管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-impl" data-tab="项目实施管理">
+            <span>项目实施管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-eval" data-tab="总结评价管理">
+            <span>总结评价管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-index" data-tab="投资指标库">
+            <span>投资指标库</span>
+        </div>
+    </div>
+    <div class="menu-item" data-group="decision">
+        <span class="menu-icon">📊</span><span>辅助决策</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="decision">
+        <div class="menu-item" data-page="strategy-map" data-tab="战略地图">
+            <span>战略地图</span>
+        </div>
+        <div class="menu-item" data-page="project-overview" data-tab="项目总览">
+            <span>项目总览</span>
+        </div>
+        <div class="menu-item" data-page="invest-ops" data-tab="投资运营">
+            <span>投资运营</span>
+        </div>
+        <div class="menu-item" data-page="industry" data-tab="行业研判">
+            <span>行业研判</span>
+        </div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="system">
+        <span class="menu-icon">⚙</span><span>系统管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="system">
+        <div class="menu-item" data-page="user-mgmt" data-tab="用户管理">
+            <span>用户管理</span>
+        </div>
+        <div class="menu-item" data-page="role-mgmt" data-tab="权限管理">
+            <span>权限管理</span>
+        </div>
+    </div>
+</aside>
+<div class="main-area">
+    <div class="tab-bar"></div>
+<div class="page-content active" id="page-plan-exec">
+        <div class="card">
+            <div class="action-bar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-primary" id="btn-task-decompose">+ 任务分解</button>
+                    <button class="btn btn-default" id="btn-gen-report">生成评估报告</button>
+                    <button class="btn btn-default" id="btn-export-exec">批量导出</button>
+                </div>
+            </div>
+            <div class="search-bar" style="margin-bottom:12px;">
+                <label>规划周期：</label><select><option>2026-2030五年规划</option><option>2021-2025五年规划</option></select>
+                <label>执行部门：</label><select><option>全部</option><option>能源事业部</option><option>数字化部</option><option>矿业事业部</option></select>
+                <label>任务状态：</label><select><option>全部</option><option>进行中</option><option>已完成</option><option>滞后</option></select>
+                <button class="btn btn-primary">查询</button><button class="btn btn-default">重置</button>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table" id="execTable">
+                    <thead><tr><th style="width:40px;"><input type="checkbox" id="checkAllExec" title="全选"></th><th>序号</th><th>规划板块</th><th>任务名称</th><th>执行部门</th><th>目标指标</th><th>完成进度</th><th>到期时间</th><th>状态</th><th>操作</th></tr></thead>
+                    <tbody>
+                        <tr data-id="1"><td><input type="checkbox" class="row-check-exec"></td><td>1</td><td>新能源产业</td><td>光伏发电装机容量达标</td><td>能源事业部</td><td>装机容量≥500MW</td><td><span style="color:var(--primary-100);font-weight:500;">78%</span></td><td>2027-12-31</td><td><span class="tag tag-success">进行中</span></td><td><span class="link btn-detail-exec">详情</span><span class="link btn-report-exec" style="margin-left:4px;color:var(--warning);">填报</span></td></tr>
+                        <tr data-id="2"><td><input type="checkbox" class="row-check-exec"></td><td>2</td><td>数字化转型</td><td>ERP系统全面上线</td><td>数字化部</td><td>覆盖率100%</td><td><span style="color:var(--warning);font-weight:500;">45%</span></td><td>2026-06-30</td><td><span class="tag tag-warning">滞后</span></td><td><span class="link btn-detail-exec">详情</span><span class="link btn-report-exec" style="margin-left:4px;color:var(--warning);">填报</span></td></tr>
+                        <tr data-id="3"><td><input type="checkbox" class="row-check-exec"></td><td>3</td><td>矿业板块</td><td>智慧矿山建设</td><td>矿业事业部</td><td>自动化率≥60%</td><td><span style="color:var(--primary-100);font-weight:500;">90%</span></td><td>2026-12-31</td><td><span class="tag tag-info">已完成</span></td><td><span class="link btn-detail-exec">详情</span></td></tr>
+                        <tr data-id="4"><td><input type="checkbox" class="row-check-exec"></td><td>4</td><td>物流板块</td><td>智能仓储体系搭建</td><td>物流事业部</td><td>仓储效率提升30%</td><td><span style="color:var(--primary-100);font-weight:500;">60%</span></td><td>2028-03-31</td><td><span class="tag tag-success">进行中</span></td><td><span class="link btn-detail-exec">详情</span><span class="link btn-report-exec" style="margin-left:4px;color:var(--warning);">填报</span></td></tr>
+                        <tr data-id="5"><td><input type="checkbox" class="row-check-exec"></td><td>5</td><td>金融板块</td><td>供应链金融平台建设</td><td>金融事业部</td><td>年交易额≥100亿</td><td><span style="color:var(--error);font-weight:500;">25%</span></td><td>2026-09-30</td><td><span class="tag tag-error">严重滞后</span></td><td><span class="link btn-detail-exec">详情</span><span class="link btn-report-exec" style="margin-left:4px;color:var(--warning);">填报</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination"><span class="total">共 28 条</span><button class="page-btn" disabled>‹</button><button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">›</button></div>
+        </div>
+    </div>
+
+    <!-- ===== 模态框：任务分解 ===== -->
+    <div class="modal-overlay" id="modal-task-decompose">
+        <div class="modal">
+            <div class="modal-header"><span class="modal-title">任务分解</span><button class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <div class="card" style="background:var(--bg-200);margin-bottom:16px;">
+                    <div style="font-size:12px;color:var(--text-200);">当前规划：<strong style="color:var(--text-100);">集团公司五年总体规划（2026-2030）</strong></div>
+                </div>
+                <div class="card" style="margin-bottom:16px;">
+                    <div class="card-title">新增分解任务</div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex:2;"><label class="required">任务名称</label><input placeholder="例：光伏发电装机容量达标"></div>
+                        <div class="form-group"><label class="required">规划板块</label><select><option>新能源产业</option><option>数字化转型</option><option>矿业板块</option><option>物流板块</option><option>金融板块</option></select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="required">执行部门</label><select><option>能源事业部</option><option>数字化部</option><option>矿业事业部</option><option>物流事业部</option><option>金融事业部</option></select></div>
+                        <div class="form-group"><label>责任人</label><input placeholder="指定责任人"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="required">目标指标</label><input placeholder="例：装机容量≥500MW"></div>
+                        <div class="form-group"><label>计划开始</label><input type="date"></div>
+                        <div class="form-group"><label>计划完成</label><input type="date"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex:1;"><label>备注</label><textarea rows="2" placeholder="补充说明..."></textarea></div>
+                    </div>
+                    <button class="btn btn-default btn-sm" id="btn-add-subtask">+ 添加子任务</button>
+                </div>
+                <div class="card">
+                    <div class="card-title">已分解任务列表（3项）</div>
+                    <table class="data-table">
+                        <thead><tr><th>任务名称</th><th>板块</th><th>执行部门</th><th>责任人</th><th>目标指标</th><th>截止时间</th><th>操作</th></tr></thead>
+                        <tbody id="subtask-tbody">
+                            <tr data-id="1"><td>光伏发电装机容量达标</td><td>新能源产业</td><td>能源事业部</td><td>王强</td><td>装机容量≥500MW</td><td>2027-12-31</td><td><span class="link danger btn-remove-subtask">移除</span></td></tr>
+                            <tr data-id="2"><td>风电项目前期调研</td><td>新能源产业</td><td>能源事业部</td><td>李涛</td><td>完成3处选址报告</td><td>2026-06-30</td><td><span class="link danger btn-remove-subtask">移除</span></td></tr>
+                            <tr data-id="3"><td>储能电站建设工程</td><td>新能源产业</td><td>能源事业部</td><td>张磊</td><td>建成2座储能站</td><td>2028-03-31</td><td><span class="link danger btn-remove-subtask">移除</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default modal-close">取消</button>
+                <button class="btn btn-primary">确认分解</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 模态框：生成评估报告 ===== -->
+    <div class="modal-overlay" id="modal-gen-report">
+        <div class="modal">
+            <div class="modal-header"><span class="modal-title">生成评估报告</span><button class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <div class="card" style="background:var(--bg-200);margin-bottom:16px;">
+                    <div style="font-size:12px;color:var(--text-200);">评估周期：<strong style="color:var(--text-100);">2026-2030五年规划</strong>｜数据截止：2026-05-23</div>
+                </div>
+                <div class="stat-cards" style="margin-bottom:16px;">
+                    <div class="stat-card"><div class="stat-label">总任务数</div><div class="stat-value" style="font-size:22px;">28</div><div class="stat-icon green">📋</div></div>
+                    <div class="stat-card"><div class="stat-label">已完成</div><div class="stat-value" style="font-size:22px;">8</div><div class="stat-icon green">✓</div></div>
+                    <div class="stat-card"><div class="stat-label">滞后任务</div><div class="stat-value" style="font-size:22px;color:var(--error);">6</div><div class="stat-icon red">⚠</div></div>
+                    <div class="stat-card"><div class="stat-label">整体完成率</div><div class="stat-value" style="font-size:22px;">62%</div><div class="stat-icon blue">%</div></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">评估报告预览</div>
+                    <div class="timeline">
+                        <div class="tl-item"><div class="tl-dot done"></div><div class="tl-content"><div class="tl-title">一、任务完成概况</div><div class="tl-desc">28项分解任务中，已完成8项（28.6%），正常推进14项（50%），滞后6项（21.4%）。整体完成率62%，较上期提升5个百分点。</div></div></div>
+                        <div class="tl-item"><div class="tl-dot current"></div><div class="tl-content"><div class="tl-title">二、主要成果</div><div class="tl-desc">新能源板块光伏装机目标超额完成；矿业板块智慧矿山建设接近验收；物流板块仓储效率显著提升。</div></div></div>
+                        <div class="tl-item"><div class="tl-dot"></div><div class="tl-content"><div class="tl-title">三、存在问题</div><div class="tl-desc">金融板块供应链金融平台建设严重滞后（25%），主要受监管审批影响；数字化转型ERP上线进度落后预期。</div></div></div>
+                        <div class="tl-item"><div class="tl-dot"></div><div class="tl-content"><div class="tl-title">四、改进建议</div><div class="tl-desc">1. 金融板块加大协调力度；2. 数字化部增配资源加速ERP上线；3. 建议下季度组织专项督办。</div></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default modal-close">取消</button>
+                <button class="btn btn-default">导出Word</button>
+                <button class="btn btn-primary">确认生成报告</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 模态框：任务详情 ===== -->
+    <div class="modal-overlay" id="modal-detail-exec">
+        <div class="modal">
+            <div class="modal-header"><span class="modal-title">任务详情 — 光伏发电装机容量达标</span><button class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                    <div class="card">
+                        <div class="card-title">基本信息</div>
+                        <table class="data-table">
+                            <tr><td style="color:var(--text-200);width:80px;">任务名称</td><td>光伏发电装机容量达标</td></tr>
+                            <tr><td style="color:var(--text-200);">规划板块</td><td>新能源产业</td></tr>
+                            <tr><td style="color:var(--text-200);">执行部门</td><td>能源事业部</td></tr>
+                            <tr><td style="color:var(--text-200);">责任人</td><td>王强</td></tr>
+                            <tr><td style="color:var(--text-200);">目标指标</td><td>装机容量≥500MW</td></tr>
+                            <tr><td style="color:var(--text-200);">计划周期</td><td>2026-01-01 ~ 2027-12-31</td></tr>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">进度概览</div>
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                            <div class="progress-bar-wrap"><div class="progress-bar-fill good" style="width:78%;"></div></div>
+                            <span style="font-size:16px;font-weight:600;color:var(--primary-100);">78%</span>
+                        </div>
+                        <table class="data-table">
+                            <tr><td style="color:var(--text-200);">当前状态</td><td><span class="tag tag-success">进行中</span></td></tr>
+                            <tr><td style="color:var(--text-200);">到期时间</td><td>2027-12-31（剩余19个月）</td></tr>
+                            <tr><td style="color:var(--text-200);">进度评估</td><td><span class="tag tag-success">正常推进</span></td></tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">子任务列表（3项）</div>
+                    <table class="data-table">
+                        <thead><tr><th>任务名称</th><th>执行部门</th><th>责任人</th><th>目标指标</th><th>截止时间</th><th>进度</th><th>状态</th></tr></thead>
+                        <tbody>
+                            <tr><td>光伏发电装机容量达标</td><td>能源事业部</td><td>王强</td><td>装机容量≥500MW</td><td>2027-12-31</td><td><span style="color:var(--primary-100);font-weight:500;">78%</span></td><td><span class="tag tag-success">进行中</span></td></tr>
+                            <tr><td>风电项目前期调研</td><td>能源事业部</td><td>李涛</td><td>完成3处选址报告</td><td>2026-06-30</td><td><span style="color:var(--warning);font-weight:500;">45%</span></td><td><span class="tag tag-warning">滞后</span></td></tr>
+                            <tr><td>储能电站建设工程</td><td>能源事业部</td><td>张磊</td><td>建成2座储能站</td><td>2028-03-31</td><td><span style="color:var(--primary-100);font-weight:500;">60%</span></td><td><span class="tag tag-success">进行中</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <div class="card-title">进度填报记录</div>
+                    <table class="data-table">
+                        <thead><tr><th>填报日期</th><th>完成进度</th><th>进展描述</th><th>填报人</th></tr></thead>
+                        <tbody>
+                            <tr><td>2026-05-15</td><td>78%</td><td>第二批光伏组件安装完成，累计装机390MW</td><td>王强</td></tr>
+                            <tr><td>2026-04-10</td><td>68%</td><td>首期200MW并网发电正常运行</td><td>王强</td></tr>
+                            <tr><td>2026-03-05</td><td>52%</td><td>光伏支架基础施工完成80%</td><td>王强</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default modal-close">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 模态框：批量导出 ===== -->
+    <div class="modal-overlay" id="modal-export-exec">
+        <div class="modal">
+            <div class="modal-header"><span class="modal-title">批量导出执行任务详情</span><button class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <div class="card" style="background:var(--bg-200);margin-bottom:16px;">
+                    <div style="font-size:12px;color:var(--text-200);">已选择 <strong style="color:var(--primary-100);" id="export-count-exec">0</strong> 个任务</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">选择导出内容</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+                        <label><input type="checkbox" checked> 基本信息（任务/板块/部门/目标）</label>
+                        <label><input type="checkbox" checked> 进度数据与状态</label>
+                        <label><input type="checkbox" checked> 进度填报记录</label>
+                        <label><input type="checkbox"> 评估报告</label>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">导出格式</div>
+                    <div style="display:flex;gap:16px;font-size:13px;">
+                        <label><input type="radio" name="export-fmt-exec" checked> Excel (.xlsx)</label>
+                        <label><input type="radio" name="export-fmt-exec"> PDF (.pdf)</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default modal-close">取消</button>
+                <button class="btn btn-primary" id="btn-confirm-export-exec">确认导出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 模态框：进度填报 ===== -->
+    <div class="modal-overlay" id="modal-report-exec">
+        <div class="modal">
+            <div class="modal-header"><span class="modal-title">进度填报 — 光伏发电装机容量达标</span><button class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <div class="card" style="background:var(--bg-200);margin-bottom:16px;">
+                    <div style="font-size:12px;color:var(--text-200);">当前进度：<strong style="color:var(--primary-100);">78%</strong>（装机容量累计390MW / 目标500MW）</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">填报进度信息</div>
+                    <div class="form-row">
+                        <div class="form-group"><label class="required">填报日期</label><input type="date" value="2026-05-23"></div>
+                        <div class="form-group"><label>填报子任务</label><select id="report-subtask-select"><option value="">主任务整体进度</option><option value="1">光伏发电装机容量达标</option><option value="2">风电项目前期调研</option><option value="3">储能电站建设工程</option></select></div>
+                        <div class="form-group"><label class="required">完成进度（%）</label><input type="number" placeholder="例：85" min="0" max="100" id="report-progress-val"></div>
+                    </div>
+                    <div class="form-row">
+                        <div style="flex:1;">
+                            <label style="font-size:13px;font-weight:500;margin-bottom:4px;display:block;">完成进度滑块</label>
+                            <input type="range" min="0" max="100" value="78" style="width:100%;" id="report-progress-slider" oninput="var p=document.getElementById('report-progress-val');if(p)p.value=this.value;var s=document.getElementById('slider-display');if(s)s.textContent=this.value+'%';var f=document.getElementById('progress-preview');if(f)f.style.width=this.value+'%';">
+                            <div style="text-align:center;margin-top:4px;font-weight:600;font-size:14px;color:var(--primary-100);" id="slider-display">78%</div>
+                        </div>
+                    </div>
+                    <div style="margin:12px 0;">
+                        <label style="font-size:13px;font-weight:500;display:block;margin-bottom:4px;">进度预览</label>
+                        <div class="progress-bar-wrap"><div class="progress-bar-fill good" style="width:78%;" id="progress-preview"></div></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex:1;"><label class="required">进展描述</label><textarea placeholder="请详细描述本期进展：如安装进度、关键里程碑完成情况、遇到的问题等..." rows="4"></textarea></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>是否达成里程碑</label><select><option>未选择</option><option>是 — 达成以下里程碑</option><option>否 — 未达成预期里程碑</option></select></div>
+                        <div class="form-group"><label>关联里程碑</label><select><option>里程碑1：首期200MW并网</option><option>里程碑2：累计装机400MW</option><option>里程碑3：全容量500MW并网</option></select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="flex:1;"><label>遇到问题与风险</label><textarea rows="2" placeholder="如无问题可留空"></textarea></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">附件上传</div>
+                    <div class="form-group"><input type="file" style="padding:4px;"></div>
+                    <div style="margin-top:8px;font-size:11px;color:var(--text-300);">支持格式：jpg/png/pdf/docx，单个文件≤10MB</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default modal-close">取消</button>
+                <button class="btn btn-default">保存草稿</button>
+                <button class="btn btn-primary" id="btn-submit-report">提交进度</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var sidebar = document.getElementById('sidebar');
+    sidebar.addEventListener('click', function(e) {
+        var item = e.target.closest('.menu-item');
+        if (!item) return;
+        var group = item.dataset.group;
+        if (group) {
+            var sub = sidebar.querySelector('.sub-menu[data-group="' + group + '"]');
+            if (sub) { sub.classList.toggle('open'); item.classList.toggle('expanded'); }
+        }
+    });
+
+    function openModal(id) {
+        document.getElementById(id).classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    document.getElementById('btn-task-decompose').addEventListener('click', function() {
+        openModal('modal-task-decompose');
+    });
+    document.getElementById('btn-gen-report').addEventListener('click', function() {
+        openModal('modal-gen-report');
+    });
+
+    var checkAllExec = document.getElementById('checkAllExec');
+    if (checkAllExec) {
+        checkAllExec.addEventListener('change', function() {
+            document.querySelectorAll('.row-check-exec').forEach(function(cb) {
+                cb.checked = checkAllExec.checked;
+            });
+        });
+    }
+
+    var btnExportExec = document.getElementById('btn-export-exec');
+    if (btnExportExec) {
+        btnExportExec.addEventListener('click', function() {
+            var checked = document.querySelectorAll('.row-check-exec:checked');
+            if (checked.length === 0) {
+                alert('请至少勾选一个执行任务');
+                return;
+            }
+            document.getElementById('export-count-exec').textContent = checked.length;
+            openModal('modal-export-exec');
+        });
+    }
+
+    var btnConfirmExportExec = document.getElementById('btn-confirm-export-exec');
+    if (btnConfirmExportExec) {
+        btnConfirmExportExec.addEventListener('click', function() {
+            var checked = document.querySelectorAll('.row-check-exec:checked');
+            var names = [];
+            checked.forEach(function(cb) {
+                var tr = cb.closest('tr');
+                if (tr) names.push(tr.cells[3].textContent);
+            });
+            alert('已导出 ' + checked.length + ' 个任务的详情：\n' + names.join('\n'));
+            document.getElementById('modal-export-exec').classList.remove('show');
+            document.body.style.overflow = '';
+        });
+    }
+
+    document.getElementById('execTable').addEventListener('click', function(e) {
+        var target = e.target;
+        if (target.classList.contains('btn-detail-exec')) {
+            openModal('modal-detail-exec');
+        }
+    });
+
+    // 填报按钮单独绑定到 document 上，确保能捕获到
+    document.addEventListener('click', function(e) {
+        var target = e.target;
+        var btn = target.closest('.btn-report-exec');
+        if (btn) {
+            openModal('modal-report-exec');
+        }
+    });
+
+    var btnSubmitReport = document.getElementById('btn-submit-report');
+    if (btnSubmitReport) {
+        btnSubmitReport.addEventListener('click', function() {
+            var val = document.getElementById('report-progress-val');
+            var subtaskSelect = document.getElementById('report-subtask-select');
+            var subtaskText = subtaskSelect && subtaskSelect.value ? subtaskSelect.options[subtaskSelect.selectedIndex].text : '主任务';
+            var pct = val ? val.value : '--';
+            alert('进度已提交！' + subtaskText + ' 当前进度更新为：' + pct + '%');
+            document.getElementById('modal-report-exec').classList.remove('show');
+            document.body.style.overflow = '';
+        });
+    }
+
+    // 添加子任务
+    var btnAddSubtask = document.getElementById('btn-add-subtask');
+    if (btnAddSubtask) {
+        btnAddSubtask.addEventListener('click', function() {
+            var tbody = document.getElementById('subtask-tbody');
+            var count = tbody.children.length + 1;
+            var tr = document.createElement('tr');
+            tr.setAttribute('data-id', count);
+            tr.innerHTML = '<td>新子任务' + count + '</td><td>新能源产业</td><td>能源事业部</td><td></td><td></td><td></td><td><span class="link danger btn-remove-subtask">移除</span></td>';
+            tbody.appendChild(tr);
+            // 更新任务计数
+            var title = tbody.closest('.card').querySelector('.card-title');
+            if (title) title.textContent = '已分解任务列表（' + tbody.children.length + '项）';
+        });
+    }
+
+    // 移除子任务（事件委托）
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('btn-remove-subtask')) {
+            var tr = e.target.closest('tr');
+            if (tr) tr.remove();
+            var tbody = document.getElementById('subtask-tbody');
+            if (tbody) {
+                var title = tbody.closest('.card').querySelector('.card-title');
+                if (title) title.textContent = '已分解任务列表（' + tbody.children.length + '项）';
+            }
+        }
+    });
+
+    document.querySelectorAll('.modal-close').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var overlay = btn.closest('.modal-overlay');
+            if (overlay) overlay.classList.remove('show');
+            document.body.style.overflow = '';
+        });
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                overlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

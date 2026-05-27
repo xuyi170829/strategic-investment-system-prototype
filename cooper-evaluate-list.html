@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>战略与投资管理系统 - 评估管理</title>
+<style>
+:root {
+    --primary-100: #0A6651;
+    --primary-200: #118A73;
+    --primary-300: #E8F5F2;
+    --accent-100: #2E8B57;
+    --accent-200: #0D4F42;
+    --text-100: #333333;
+    --text-200: #666666;
+    --text-300: #999999;
+    --text-white: #FFFFFF;
+    --bg-100: #FFFFFF;
+    --bg-200: #F5F5F5;
+    --bg-300: #EEEEEE;
+    --border-100: #E0E0E0;
+    --border-200: #D0D0D0;
+    --success: #52C41A;
+    --warning: #FAAD14;
+    --error: #FF4D4F;
+    --info: #1890FF;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg-200); color: var(--text-100); min-height: 100vh; font-size: 13px; }
+.header { height: 50px; background: linear-gradient(180deg, #0A6651 0%, #0D4F42 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+.header .logo-area { display: flex; align-items: center; gap: 10px; color: var(--text-white); }
+.header .logo-area .sys-name { font-size: 16px; font-weight: 600; letter-spacing: 1px; }
+.header .right-panel { display: flex; align-items: center; gap: 12px; }
+.header .right-panel .btn-icon { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: var(--text-white); cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 14px; transition: background 0.2s; }
+.header .right-panel .btn-icon:hover { background: rgba(255,255,255,0.25); }
+.header .right-panel .user-info { display: flex; align-items: center; gap: 8px; color: var(--text-white); cursor: pointer; }
+.header .right-panel .user-info .avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.sidebar { width: 180px; background: var(--bg-100); border-right: 1px solid var(--border-100); position: fixed; top: 50px; left: 0; bottom: 0; overflow-y: auto; z-index: 999; }
+.sidebar .menu-item { height: 36px; line-height: 36px; padding: 0 16px; color: var(--text-100); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-size: 13px; border-left: 3px solid transparent; white-space: nowrap; }
+.sidebar .menu-item:hover { background: var(--bg-200); }
+.sidebar .menu-item.active { background: var(--primary-100); color: var(--text-white); border-left-color: var(--primary-200); }
+.sidebar .menu-item .menu-icon { font-size: 14px; width: 16px; text-align: center; }
+.sidebar .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.2s; }
+.sidebar .menu-item.expanded .arrow { transform: rotate(90deg); }
+.sidebar .sub-menu { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+.sidebar .sub-menu.open { max-height: 500px; }
+.sidebar .sub-menu .menu-item { padding-left: 40px; font-size: 12px; color: var(--text-200); }
+.sidebar .sub-menu .menu-item.active { background: transparent; color: var(--primary-100); border-left-color: var(--primary-100); font-weight: 500; }
+.sidebar .sub-menu .menu-item.has-sub { padding-left: 28px; font-size: 13px; color: var(--text-100); font-weight: 500; }
+.sidebar .sub-sub-menu { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+.sidebar .sub-sub-menu.open { max-height: 300px; }
+.sidebar .sub-sub-menu .menu-item { padding-left: 56px; font-size: 12px; color: var(--text-200); }
+.sidebar .sub-sub-menu .menu-item.active { background: transparent; color: var(--primary-100); border-left-color: var(--primary-100); font-weight: 500; }
+.sidebar .menu-divider { height: 1px; background: var(--border-100); margin: 4px 12px; }
+.main-area { margin-left: 180px; margin-top: 50px; padding: 0; min-height: calc(100vh - 50px); background: var(--bg-200); }
+.tab-bar { display: flex; align-items: center; background: var(--bg-100); border-bottom: 1px solid var(--border-100); height: 36px; padding: 0 8px; gap: 2px; overflow-x: auto; }
+.tab-bar .tab-item { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-200); border: 1px solid var(--border-100); border-bottom: none; border-radius: 4px 4px 0 0; cursor: pointer; font-size: 12px; color: var(--text-200); white-space: nowrap; transition: all 0.15s; }
+.tab-bar .tab-item.active { background: var(--bg-100); color: var(--primary-100); font-weight: 500; border-bottom: 2px solid var(--bg-100); margin-bottom: -1px; }
+.tab-bar .tab-item .tab-close { font-size: 10px; margin-left: 2px; color: var(--text-300); }
+.tab-bar .tab-item .tab-close:hover { color: var(--error); }
+.page-content { display: none; padding: 16px; }
+.page-content.active { display: block; }
+.card { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+.card-title { font-size: 14px; font-weight: 500; color: var(--text-100); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-100); }
+.btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; border: none; transition: all 0.2s; }
+.btn-primary { background: var(--primary-100); color: var(--text-white); }
+.btn-primary:hover { background: var(--primary-200); }
+.btn-default { background: var(--bg-100); color: var(--text-100); border: 1px solid var(--border-100); }
+.btn-default:hover { background: var(--bg-200); }
+.search-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.search-bar label { color: var(--text-100); font-size: 13px; white-space: nowrap; }
+.search-bar input, .search-bar select { padding: 6px 12px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 13px; background: var(--bg-100); width: 180px; outline: none; }
+.search-bar input:focus, .search-bar select:focus { border-color: var(--primary-100); }
+.table-wrap { overflow-x: auto; }
+table.data-table { width: 100%; border-collapse: collapse; }
+table.data-table th { background: var(--bg-200); padding: 10px 12px; text-align: left; font-weight: 500; color: var(--text-100); border-bottom: 1px solid var(--border-100); font-size: 13px; white-space: nowrap; }
+table.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-100); font-size: 13px; white-space: nowrap; }
+table.data-table tbody tr:hover { background: var(--bg-200); }
+table.data-table .link { color: var(--accent-100); text-decoration: none; margin-right: 10px; cursor: pointer; }
+table.data-table .link:hover { text-decoration: underline; }
+table.data-table .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+.tag-success { background: #F6FFED; color: var(--success); }
+.tag-warning { background: #FFF7E6; color: var(--warning); }
+.tag-info { background: #E6F7FF; color: var(--info); }
+.pagination { display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 12px 0; }
+.pagination .total { color: var(--text-200); font-size: 12px; margin-right: 10px; }
+.pagination .page-btn { width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--border-100); background: var(--bg-100); cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.pagination .page-btn.active { background: var(--primary-100); color: var(--text-white); border-color: var(--primary-100); }
+.pagination .page-btn:disabled { color: var(--text-300); cursor: not-allowed; }
+</style>
+</head>
+<body>
+<header class="header">
+    <div class="logo-area">
+        <span style="font-size:20px;">◈</span>
+        <span class="sys-name">战略与投资管理系统</span>
+    </div>
+    <div class="right-panel">
+        <div class="btn-icon" title="消息">✉</div>
+        <div class="btn-icon" title="全屏">⛶</div>
+        <div class="user-info">
+            <div class="avatar">张</div>
+            <span style="font-size:13px;">管理员</span>
+        </div>
+    </div>
+</header>
+<aside class="sidebar">
+    <div class="menu-item" onclick="window.location.href='home.html'">
+        <span class="menu-icon">⌂</span><span>主页</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="devplan">
+        <span class="menu-icon">📋</span><span>发展规划管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="devplan">
+        <div class="menu-item" onclick="window.location.href='plan-compile.html'"><span>规划编制管理</span></div>
+        <div class="menu-item" onclick="window.location.href='plan-exec.html'"><span>规划执行管理</span></div>
+        <div class="menu-item" onclick="window.location.href='plan-adjust.html'"><span>规划调整管理</span></div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item expanded" data-group="cooper">
+        <span class="menu-icon">🤝</span><span>战略合作管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu open" data-group="cooper">
+        <div class="menu-item has-sub" data-sub="cooper-initiate">
+            <span>发起管理</span><span class="arrow">▶</span>
+        </div>
+        <div class="sub-sub-menu" data-sub="cooper-initiate">
+            <div class="menu-item" onclick="window.location.href='cooper-intent-list.html'"><span>意向对接列表</span></div>
+            <div class="menu-item" onclick="window.location.href='cooper-negotiate.html'"><span>协商记录</span></div>
+            <div class="menu-item" onclick="window.location.href='cooper-feasibility.html'"><span>可行性论证</span></div>
+        </div>
+        <div class="menu-item has-sub" data-sub="cooper-draft">
+            <span>起草管理</span><span class="arrow">▶</span>
+        </div>
+        <div class="sub-sub-menu" data-sub="cooper-draft">
+            <div class="menu-item" onclick="window.location.href='cooper-draft-list.html'"><span>协议初稿列表</span></div>
+            <div class="menu-item" onclick="window.location.href='cooper-opinion-summary.html'"><span>意见汇总</span></div>
+        </div>
+        <div class="menu-item has-sub" data-sub="cooper-approve">
+            <span>审批与签署管理</span><span class="arrow">▶</span>
+        </div>
+        <div class="sub-sub-menu" data-sub="cooper-approve">
+            <div class="menu-item" onclick="window.location.href='cooper-approve-list.html'"><span>协议审批列表</span></div>
+        </div>
+        <div class="menu-item has-sub expanded" data-sub="cooper-exec">
+            <span>执行与评估管理</span><span class="arrow">▶</span>
+        </div>
+        <div class="sub-sub-menu open" data-sub="cooper-exec">
+            <div class="menu-item" onclick="window.location.href='cooper-exec-list.html'"><span>协议执行列表</span></div>
+            <div class="menu-item" onclick="window.location.href='cooper-progress-board.html'"><span>执行进度看板</span></div>
+            <div class="menu-item active"><span>评估管理</span></div>
+            <div class="menu-item" onclick="window.location.href='cooper-change-apply.html'"><span>变更/废止申请</span></div>
+            <div class="menu-item" onclick="window.location.href='cooper-renew-init.html'"><span>续签发起</span></div>
+        </div>
+        <div class="menu-item has-sub" data-sub="cooper-archive">
+            <span>归档查询</span><span class="arrow">▶</span>
+        </div>
+        <div class="sub-sub-menu" data-sub="cooper-archive">
+            <div class="menu-item" onclick="window.location.href='cooper-archive.html'"><span>全流程档案查询</span></div>
+        </div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="invest">
+        <span class="menu-icon">💰</span><span>投资管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="invest">
+        <div class="menu-item" onclick="window.location.href='invest-init.html'"><span>前期立项管理</span></div>
+        <div class="menu-item" onclick="window.location.href='invest-decision.html'"><span>投资决策管理</span></div>
+        <div class="menu-item" onclick="window.location.href='invest-impl.html'"><span>项目实施管理</span></div>
+        <div class="menu-item" onclick="window.location.href='invest-eval.html'"><span>总结评价管理</span></div>
+        <div class="menu-item" onclick="window.location.href='invest-index.html'"><span>投资指标库</span></div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="assist">
+        <span class="menu-icon">📊</span><span>辅助决策</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="assist">
+        <div class="menu-item" onclick="window.location.href='strategy-map.html'"><span>战略地图</span></div>
+        <div class="menu-item" onclick="window.location.href='project-overview.html'"><span>项目总览</span></div>
+        <div class="menu-item" onclick="window.location.href='invest-ops.html'"><span>投资运营</span></div>
+        <div class="menu-item" onclick="window.location.href='industry.html'"><span>行业研判</span></div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="system">
+        <span class="menu-icon">⚙</span><span>系统管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="system">
+        <div class="menu-item" onclick="window.location.href='user-mgmt.html'"><span>用户管理</span></div>
+        <div class="menu-item" onclick="window.location.href='role-mgmt.html'"><span>权限管理</span></div>
+    </div>
+</aside>
+<main class="main-area">
+    <div class="tab-bar">
+        <div class="tab-item active">
+            <span>评估管理</span><span class="tab-close">×</span>
+        </div>
+    </div>
+    <div class="page-content active">
+        <div class="card">
+            <div class="action-bar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <div style="display:flex;gap:8px;"></div>
+            </div>
+            <div class="search-bar" style="margin-bottom:12px;">
+                <label>协议名称：</label><input type="text" style="width:180px;">
+                <label>评估状态：</label>
+                <select><option>全部</option><option>待评估</option><option>评估中</option><option>已完成</option></select>
+                <button class="btn btn-primary">查询</button>
+                <button class="btn btn-default">重置</button>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th style="width:40px;"><input type="checkbox"></th><th>序号</th><th>协议编号</th><th>协议名称</th><th>合作方</th><th>评估类型</th><th>评估周期</th><th>评估状态</th><th>操作</th></tr></thead>
+                    <tbody>
+                        <tr><td><input type="checkbox"></td><td>1</td><td>SP-2024-005</td><td>与清华大学科研合作协议</td><td>清华大学</td><td><span class="tag tag-info">年度评估</span></td><td>2025年度</td><td><span class="tag tag-success">已完成</span></td><td><span class="link">查看报告</span></td></tr>
+                        <tr><td><input type="checkbox"></td><td>2</td><td>SP-2025-001</td><td>与中国建筑集团战略合作协议</td><td>中国建筑集团</td><td><span class="tag tag-warning">中期评估</span></td><td>2026年中期</td><td><span class="tag tag-warning">评估中</span></td><td><span class="link">编辑报告</span><span class="link" style="margin-left:4px;">查看报告</span></td></tr>
+                        <tr><td><input type="checkbox"></td><td>3</td><td>SP-2025-002</td><td>与深圳市政府区域合作协议</td><td>深圳市政府</td><td><span class="tag tag-info">年度评估</span></td><td>2026年度</td><td><span class="tag tag-info">待评估</span></td><td><span class="link">发起评估</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination"><span class="total">共 12 条</span><button class="page-btn" disabled="">‹</button><button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">›</button></div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

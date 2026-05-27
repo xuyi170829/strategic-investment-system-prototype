@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>战略与投资管理系统</title>
+<style>
+:root {
+    --primary-100: #0A6651;
+    --primary-200: #118A73;
+    --primary-300: #E8F5F2;
+    --accent-100: #2E8B57;
+    --accent-200: #0D4F42;
+    --text-100: #333333;
+    --text-200: #666666;
+    --text-300: #999999;
+    --text-white: #FFFFFF;
+    --bg-100: #FFFFFF;
+    --bg-200: #F5F5F5;
+    --bg-300: #EEEEEE;
+    --border-100: #E0E0E0;
+    --border-200: #D0D0D0;
+    --success: #52C41A;
+    --warning: #FAAD14;
+    --error: #FF4D4F;
+    --info: #1890FF;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg-200); color: var(--text-100); min-height: 100vh; font-size: 13px; }
+.header { height: 50px; background: linear-gradient(180deg, #0A6651 0%, #0D4F42 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+.header .logo-area { display: flex; align-items: center; gap: 10px; color: var(--text-white); }
+.header .logo-area .sys-name { font-size: 16px; font-weight: 600; letter-spacing: 1px; }
+.header .right-panel { display: flex; align-items: center; gap: 12px; }
+.header .right-panel .btn-icon { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: var(--text-white); cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 14px; transition: background 0.2s; }
+.header .right-panel .btn-icon:hover { background: rgba(255,255,255,0.25); }
+.header .right-panel .user-info { display: flex; align-items: center; gap: 8px; color: var(--text-white); cursor: pointer; }
+.header .right-panel .user-info .avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+
+.sidebar { width: 180px; background: var(--bg-100); border-right: 1px solid var(--border-100); position: fixed; top: 50px; left: 0; bottom: 0; overflow-y: auto; z-index: 999; }
+.sidebar .menu-item { height: 36px; line-height: 36px; padding: 0 16px; color: var(--text-100); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-size: 13px; border-left: 3px solid transparent; white-space: nowrap; }
+.sidebar .menu-item:hover { background: var(--bg-200); }
+.sidebar .menu-item.active { background: var(--primary-100); color: var(--text-white); border-left-color: var(--primary-200); }
+.sidebar .menu-item .menu-icon { font-size: 14px; width: 16px; text-align: center; }
+.sidebar .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.2s; }
+.sidebar .menu-item.expanded .arrow { transform: rotate(90deg); }
+.sidebar .sub-menu { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+.sidebar .sub-menu.open { max-height: 500px; }
+.sidebar .sub-menu .menu-item { padding-left: 40px; font-size: 12px; color: var(--text-200); }
+.sidebar .sub-menu .menu-item.active { background: transparent; color: var(--primary-100); border-left-color: var(--primary-100); font-weight: 500; }
+.sidebar .menu-divider { height: 1px; background: var(--border-100); margin: 4px 12px; }
+
+.main-area { margin-left: 180px; margin-top: 50px; padding: 0; min-height: calc(100vh - 50px); background: var(--bg-200); }
+.tab-bar { display: flex; align-items: center; background: var(--bg-100); border-bottom: 1px solid var(--border-100); height: 36px; padding: 0 8px; gap: 2px; overflow-x: auto; }
+.tab-bar .tab-item { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-200); border: 1px solid var(--border-100); border-bottom: none; border-radius: 4px 4px 0 0; cursor: pointer; font-size: 12px; color: var(--text-200); white-space: nowrap; transition: all 0.15s; }
+.tab-bar .tab-item.active { background: var(--bg-100); color: var(--primary-100); font-weight: 500; border-bottom: 2px solid var(--bg-100); margin-bottom: -1px; }
+.tab-bar .tab-item .tab-close { font-size: 10px; margin-left: 2px; color: var(--text-300); }
+.tab-bar .tab-item .tab-close:hover { color: var(--error); }
+.page-content { display: none; padding: 16px; }
+.page-content.active { display: block; }
+
+.card { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+.card-title { font-size: 14px; font-weight: 500; color: var(--text-100); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-100); }
+.stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+.stat-card { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 20px; position: relative; }
+.stat-card .stat-label { font-size: 13px; color: var(--text-200); margin-bottom: 8px; }
+.stat-card .stat-value { font-size: 28px; font-weight: 600; color: var(--primary-100); }
+.stat-card .stat-icon { position: absolute; right: 20px; top: 20px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.stat-card .stat-icon.green { background: var(--primary-300); color: var(--primary-100); }
+.stat-card .stat-icon.blue { background: #E6F7FF; color: var(--info); }
+.stat-card .stat-icon.orange { background: #FFF7E6; color: var(--warning); }
+.stat-card .stat-icon.red { background: #FFF1F0; color: var(--error); }
+
+.btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; border: none; transition: all 0.2s; }
+.btn-primary { background: var(--primary-100); color: var(--text-white); }
+.btn-primary:hover { background: var(--primary-200); }
+.btn-default { background: var(--bg-100); color: var(--text-100); border: 1px solid var(--border-100); }
+.btn-default:hover { background: var(--bg-200); }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+.search-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.search-bar label { color: var(--text-100); font-size: 13px; white-space: nowrap; }
+.search-bar input, .search-bar select { padding: 6px 12px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 13px; background: var(--bg-100); width: 180px; outline: none; }
+.search-bar input:focus, .search-bar select:focus { border-color: var(--primary-100); }
+.search-bar .date-range { display: flex; align-items: center; gap: 8px; }
+.search-bar .date-range span { color: var(--text-300); }
+
+.table-wrap { overflow-x: auto; }
+table.data-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+table.data-table th { background: var(--bg-200); padding: 10px 12px; text-align: left; font-weight: 500; color: var(--text-100); border-bottom: 1px solid var(--border-100); font-size: 13px; white-space: nowrap; }
+table.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-100); font-size: 13px; }
+table.data-table tbody tr:hover { background: var(--bg-200); }
+table.data-table .link { color: var(--accent-100); text-decoration: none; margin-right: 10px; cursor: pointer; }
+table.data-table .link:hover { text-decoration: underline; }
+table.data-table .link.danger { color: var(--error); }
+table.data-table .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+.tag-success { background: #F6FFED; color: var(--success); }
+.tag-warning { background: #FFF7E6; color: var(--warning); }
+.tag-error { background: #FFF1F0; color: var(--error); }
+.tag-info { background: #E6F7FF; color: var(--info); }
+.tag-default { background: var(--bg-200); color: var(--text-300); }
+
+.pagination { display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 12px 0; }
+.pagination .total { color: var(--text-200); font-size: 12px; margin-right: 10px; }
+.pagination .page-btn { width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--border-100); background: var(--bg-100); cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.pagination .page-btn.active { background: var(--primary-100); color: var(--text-white); border-color: var(--primary-100); }
+.pagination .page-btn:disabled { color: var(--text-300); cursor: not-allowed; }
+.pagination select { padding: 4px 8px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 12px; }
+
+.steps-bar { display: flex; align-items: center; margin: 16px 0; padding: 0 20px; }
+.steps-bar .step { display: flex; align-items: center; gap: 8px; color: var(--text-300); font-size: 13px; }
+.steps-bar .step .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--bg-200); border: 2px solid var(--border-100); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; }
+.steps-bar .step.active .step-num { background: var(--primary-100); color: var(--text-white); border-color: var(--primary-100); }
+.steps-bar .step.active { color: var(--primary-100); font-weight: 500; }
+.steps-bar .step.done .step-num { background: var(--success); color: var(--text-white); border-color: var(--success); }
+.steps-bar .step-line { width: 40px; height: 2px; background: var(--border-100); margin: 0 8px; }
+.steps-bar .step-line.done { background: var(--success); }
+
+.form-row { display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
+.form-group { display: flex; flex-direction: column; gap: 4px; min-width: 200px; }
+.form-group label { font-size: 13px; color: var(--text-100); font-weight: 500; }
+.form-group input, .form-group select, .form-group textarea { padding: 6px 12px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 13px; background: var(--bg-100); outline: none; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary-100); }
+.form-group textarea { resize: vertical; min-height: 60px; }
+.form-group .required::after { content: ' *'; color: var(--error); }
+
+.timeline { padding: 10px 0; }
+.timeline .tl-item { display: flex; gap: 16px; padding: 10px 0; position: relative; }
+.timeline .tl-item::before { content: ''; position: absolute; left: 7px; top: 30px; bottom: -10px; width: 2px; background: var(--border-100); }
+.timeline .tl-item:last-child::before { display: none; }
+.timeline .tl-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--primary-100); flex-shrink: 0; margin-top: 2px; }
+.timeline .tl-dot.done { background: var(--success); }
+.timeline .tl-dot.current { background: var(--warning); box-shadow: 0 0 0 3px rgba(250,173,20,0.2); }
+.timeline .tl-content .tl-title { font-weight: 500; color: var(--text-100); font-size: 13px; }
+.timeline .tl-content .tl-desc { color: var(--text-200); font-size: 12px; margin-top: 2px; }
+.timeline .tl-content .tl-time { color: var(--text-300); font-size: 11px; }
+
+.chart-area { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.chart-box { border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; background: var(--bg-100); }
+.chart-box .chart-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: var(--text-100); }
+.chart-placeholder { height: 220px; background: var(--bg-200); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-300); font-size: 13px; }
+
+.mobile-frame { width: 375px; height: 700px; border: 1px solid var(--border-100); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin: 0 auto; }
+.mobile-frame .mobile-header { background: linear-gradient(180deg, #0A6651, #0D4F42); color: var(--text-white); padding: 10px 16px; font-size: 14px; font-weight: 500; text-align: center; }
+.mobile-frame .mobile-body { padding: 12px; background: var(--bg-200); height: calc(100% - 40px); overflow-y: auto; }
+.mobile-frame .mobile-item { background: var(--bg-100); border-radius: 6px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border-100); }
+.mobile-frame .mobile-item .mi-title { font-weight: 500; margin-bottom: 4px; font-size: 13px; }
+.mobile-frame .mobile-item .mi-sub { color: var(--text-200); font-size: 12px; }
+.mobile-frame .mobile-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.mobile-frame .mobile-badge.urgent { background: #FFF1F0; color: var(--error); }
+
+@media (max-width: 768px) {
+    .sidebar { width: 60px; }
+    .sidebar .menu-item span:not(.menu-icon) { display: none; }
+    .main-area { margin-left: 60px; }
+    .stat-cards { grid-template-columns: repeat(2, 1fr); }
+}
+/* 模态框通用样式 */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 2000; align-items: center; justify-content: center; }
+.modal-overlay.active { display: flex; }
+.modal { background: var(--bg-100); border-radius: 6px; overflow: hidden; }
+.modal.wide { width: 900px; }
+.modal-header { padding: 14px 20px; border-bottom: 1px solid var(--border-100); display: flex; justify-content: space-between; align-items: center; background: var(--bg-200); }
+.modal-header .modal-title { font-size: 15px; font-weight: 600; }
+.modal-header .modal-close { background: transparent; border: none; font-size: 18px; color: var(--text-300); cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+.modal-header .modal-close:hover { background: var(--bg-100); color: var(--text-100); }
+.modal-body { padding: 20px; max-height: 60vh; overflow-y: auto; }
+.modal-body .form-group { display: flex; align-items: center; margin-bottom: 14px; }
+.modal-body .form-group label { width: 90px; text-align: right; color: var(--text-200); font-size: 13px; margin-right: 12px; flex-shrink: 0; font-weight: 400; }
+.modal-body .form-group input:not([type="file"]),
+.modal-body .form-group select,
+.modal-body .form-group textarea { flex: 1; padding: 6px 12px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 13px; background: var(--bg-100); outline: none; }
+.modal-body .form-group input:focus,
+.modal-body .form-group select:focus,
+.modal-body .form-group textarea:focus { border-color: var(--primary-100); }
+.modal-body .form-group textarea { resize: vertical; min-height: 60px; }
+.modal-body .detail-section { border-top: 1px dashed var(--border-100); padding-top: 14px; margin-top: 8px; }
+.modal-body .detail-section .sec-title { font-size: 14px; font-weight: 500; color: var(--text-100); margin-bottom: 12px; }
+.modal-body .detail-row { display: flex; margin-bottom: 10px; }
+.modal-body .detail-row .dl { width: 90px; text-align: right; color: var(--text-200); font-size: 13px; margin-right: 12px; flex-shrink: 0; }
+.modal-body .detail-row .dv { font-size: 13px; color: var(--text-100); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.modal-footer { padding: 12px 20px; border-top: 1px solid var(--border-100); display: flex; justify-content: flex-end; gap: 10px; background: var(--bg-200); }
+</style>
+</head>
+
+<body>
+<header class="header">
+    <div class="logo-area">
+        <span style="font-size:20px;">◈</span>
+        <span class="sys-name">战略与投资管理系统</span>
+    </div>
+    <div class="right-panel">
+        <div class="btn-icon" title="消息">✉</div>
+        <div class="btn-icon" title="全屏">⛶</div>
+        <div class="user-info">
+            <div class="avatar">张</div>
+            <span style="font-size:13px;">管理员</span>
+        </div>
+    </div>
+</header>
+
+<aside class="sidebar" id="sidebar">
+    <div class="menu-item" data-page="home" data-tab="主页">
+        <span class="menu-icon">⌂</span><span>主页</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="devplan">
+        <span class="menu-icon">📋</span><span>发展规划管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="devplan">
+        <div class="menu-item" data-page="plan-compile" data-tab="规划编制管理">
+            <span>规划编制管理</span>
+        </div>
+        <div class="menu-item" data-page="plan-exec" data-tab="规划执行管理">
+            <span>规划执行管理</span>
+        </div>
+        <div class="menu-item" data-page="plan-adjust" data-tab="规划调整管理">
+            <span>规划调整管理</span>
+        </div>
+    </div>
+    <div class="menu-item" data-group="cooper">
+        <span class="menu-icon">🤝</span><span>战略合作管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="cooper">
+        <div class="menu-item" data-page="agree-list" data-tab="协议信息管理">
+            <span>协议信息管理</span>
+        </div>
+        <div class="menu-item" data-page="agree-lifecycle" data-tab="协议生命周期">
+            <span>协议生命周期</span>
+        </div>
+        <div class="menu-item" data-page="subsidiary" data-tab="二级公司管理">
+            <span>二级公司管理</span>
+        </div>
+    </div>
+    <div class="menu-item expanded" data-group="invest">
+        <span class="menu-icon">💰</span><span>投资管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu open" data-group="invest">
+        <div class="menu-item" data-page="invest-init" data-tab="前期立项管理">
+            <span>前期立项管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-decision" data-tab="投资决策管理">
+            <span>投资决策管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-impl" data-tab="项目实施管理">
+            <span>项目实施管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-eval" data-tab="总结评价管理">
+            <span>总结评价管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-index" data-tab="投资指标库">
+            <span>投资指标库</span>
+        </div>
+    </div>
+    <div class="menu-item" data-group="decision">
+        <span class="menu-icon">📊</span><span>辅助决策</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="decision">
+        <div class="menu-item" data-page="strategy-map" data-tab="战略地图">
+            <span>战略地图</span>
+        </div>
+        <div class="menu-item" data-page="project-overview" data-tab="项目总览">
+            <span>项目总览</span>
+        </div>
+        <div class="menu-item" data-page="invest-ops" data-tab="投资运营">
+            <span>投资运营</span>
+        </div>
+        <div class="menu-item" data-page="industry" data-tab="行业研判">
+            <span>行业研判</span>
+        </div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="system">
+        <span class="menu-icon">⚙</span><span>系统管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="system">
+        <div class="menu-item" data-page="user-mgmt" data-tab="用户管理">
+            <span>用户管理</span>
+        </div>
+        <div class="menu-item" data-page="role-mgmt" data-tab="权限管理">
+            <span>权限管理</span>
+        </div>
+    </div>
+</aside>
+<div class="main-area">
+    <div class="tab-bar"></div>
+<div class="page-content active" id="page-invest-impl">
+        <div class="stat-cards">
+            <div class="stat-card"><div class="stat-label">实施中项目</div><div class="stat-value">36</div><div class="stat-icon green">📁</div></div>
+            <div class="stat-card"><div class="stat-label">正常推进</div><div class="stat-value">28</div><div class="stat-icon blue">✓</div></div>
+            <div class="stat-card"><div class="stat-label">进度滞后</div><div class="stat-value">6</div><div class="stat-icon orange">⚠</div></div>
+            <div class="stat-card"><div class="stat-label">异常项目</div><div class="stat-value">2</div><div class="stat-icon red">✕</div></div>
+        </div>
+        <div class="card">
+            <div class="search-bar" style="margin-bottom:12px;">
+                <label>项目名称：</label><input type="text">
+                <label>实施状态：</label><select><option>全部</option><option>正常</option><option>滞后</option><option>异常</option></select>
+                <button class="btn btn-primary">查询</button><button class="btn btn-default">重置</button>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>序号</th><th>项目名称</th><th>投资总额(万元)</th><th>已投入(万元)</th><th>完成进度</th><th>实施状态</th><th>最近报表</th><th>填报</th><th>详情</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td>新能源产业园区建设</td><td>85,000</td><td>38,250</td><td><span style="color:var(--primary-100);font-weight:500;">45%</span></td><td><span class="tag tag-success">正常</span></td><td>2025-05-20</td><td class="link btn-impl-progress">进展填报</td><td class="link btn-impl-detail">详情</td></tr>
+                        <tr><td>2</td><td>环保科技产业园</td><td>56,000</td><td>42,000</td><td><span style="color:var(--primary-100);font-weight:500;">75%</span></td><td><span class="tag tag-success">正常</span></td><td>2025-05-18</td><td class="link btn-impl-progress">进展填报</td><td class="link btn-impl-detail">详情</td></tr>
+                        <tr><td>3</td><td>智慧物流中心</td><td>35,000</td><td>7,000</td><td><span style="color:var(--warning);font-weight:500;">20%</span></td><td><span class="tag tag-warning">滞后</span></td><td>2025-05-15</td><td class="link btn-impl-progress">进展填报</td><td class="link btn-impl-detail">详情</td></tr>
+                        <tr><td>4</td><td>风光储一体化基地</td><td>120,000</td><td>18,000</td><td><span style="color:var(--error);font-weight:500;">15%</span></td><td><span class="tag tag-error">异常</span></td><td>2025-05-10</td><td class="link btn-impl-abnormal">异常处理</td><td class="link btn-impl-redo">重新决策</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <span class="total">共 36 条</span>
+                <button class="page-btn" disabled>‹</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">4</button>
+                <button class="page-btn">›</button>
+            </div>
+        </div>
+    </div>
+    <!-- 进展填报弹窗 -->
+    <div class="modal-overlay" id="impl-progress">
+        <div class="modal wide">
+            <div class="modal-header"><span class="modal-title">进展填报</span><button class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <div class="detail-row"><span class="dl">项目名称：</span><span class="dv">新能源产业园区建设</span></div>
+                <div class="form-group"><label>填报日期：</label><input type="date"></div>
+                <div class="form-group"><label>累计投入：</label><input type="text" placeholder="请输入累计投入金额（万元）"></div>
+                <div class="form-group"><label>完成进度：</label><input type="text" placeholder="例：45%"></div>
+                <div class="form-group"><label>实施状态：</label><select><option>正常</option><option>滞后</option><option>异常</option></select></div>
+                <div class="form-group" style="align-items:flex-start;"><label>工程进度：</label><textarea rows="3" placeholder="请描述当前工程进度、关键里程碑达成情况..."></textarea></div>
+                <div class="form-group" style="align-items:flex-start;"><label>存在问题：</label><textarea rows="3" placeholder="请描述实施过程中遇到的问题及应对措施..."></textarea></div>
+                <div class="form-group" style="align-items:flex-start;"><label>附件：</label><div style="flex:1;border:1px dashed var(--border-100);border-radius:4px;padding:16px;text-align:center;font-size:12px;color:var(--text-300);cursor:pointer;">点击上传现场照片、报表等附件</div></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('impl-progress')">取消</button><button class="btn btn-primary" onclick="alert('进展填报已提交！');closeModal('impl-progress')">提交</button></div>
+        </div>
+    </div>
+    <!-- 实施详情弹窗 -->
+    <div class="modal-overlay" id="impl-detail">
+        <div class="modal wide">
+            <div class="modal-header"><span class="modal-title">项目实施详情 — 新能源产业园区建设</span><button class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <div class="detail-row"><span class="dl">项目名称：</span><span class="dv">新能源产业园区建设</span></div>
+                <div class="detail-row"><span class="dl">投资总额：</span><span class="dv">85,000 万元</span></div>
+                <div class="detail-row"><span class="dl">已投入：</span><span class="dv">38,250 万元</span></div>
+                <div class="detail-row"><span class="dl">完成进度：</span><span class="dv">45%</span></div>
+                <div class="detail-row"><span class="dl">实施状态：</span><span class="dv"><span class="tag tag-success">正常</span></span></div>
+                <div class="detail-row"><span class="dl">开始日期：</span><span class="dv">2025-04-01</span></div>
+                <div class="detail-row"><span class="dl">计划完工：</span><span class="dv">2026-12-31</span></div>
+                <div class="detail-section">
+                    <div class="sec-title">实施进度</div>
+                    <div class="timeline">
+                        <div class="tl-item"><div class="tl-dot done"></div><div class="tl-content"><div class="tl-title">项目启动</div><div class="tl-desc">完成施工招标，施工队进场</div><div class="tl-time">2025-04-01</div></div></div>
+                        <div class="tl-item"><div class="tl-dot done"></div><div class="tl-content"><div class="tl-title">基础施工完成</div><div class="tl-desc">厂房地基施工完成，通过验收</div><div class="tl-time">2025-06-15</div></div></div>
+                        <div class="tl-item"><div class="tl-dot done"></div><div class="tl-content"><div class="tl-title">主体结构封顶</div><div class="tl-desc">一期厂房主体结构完成</div><div class="tl-time">2025-09-30</div></div></div>
+                        <div class="tl-item"><div class="tl-dot current"></div><div class="tl-content"><div class="tl-title">设备安装调试</div><div class="tl-desc">光伏组件生产线安装中</div><div class="tl-time">2026-01-15</div></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('impl-detail')">关闭</button></div>
+        </div>
+    </div>
+    <!-- 异常处理弹窗 -->
+    <div class="modal-overlay" id="impl-abnormal">
+        <div class="modal wide">
+            <div class="modal-header"><span class="modal-title">异常处理 — 风光储一体化基地</span><button class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <div class="detail-row"><span class="dl">项目名称：</span><span class="dv">风光储一体化基地</span></div>
+                <div class="detail-row"><span class="dl">投资总额：</span><span class="dv">120,000 万元</span></div>
+                <div class="detail-row"><span class="dl">当前进度：</span><span class="dv">15%</span></div>
+                <div class="detail-row"><span class="dl">异常原因：</span><span class="dv"><span class="tag tag-error">用地审批延迟</span></span></div>
+                <div class="detail-section">
+                    <div class="sec-title">异常处理方案</div>
+                    <div class="form-group" style="align-items:flex-start;"><label>异常描述：</label><textarea rows="3" placeholder="请描述异常情况...">由于项目用地审批流程延迟，导致项目整体进度滞后约3个月。</textarea></div>
+                    <div class="form-group" style="align-items:flex-start;"><label>处理措施：</label><textarea rows="3" placeholder="请输入处理措施..."></textarea></div>
+                    <div class="form-group"><label>预计恢复：</label><input type="date"></div>
+                    <div class="form-group"><label>责任人：</label><input type="text" placeholder="请输入责任人"></div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('impl-abnormal')">取消</button><button class="btn btn-primary" onclick="alert('异常处理方案已提交！');closeModal('impl-abnormal')">提交处理</button></div>
+        </div>
+    </div>
+    <!-- 实施重新决策弹窗 -->
+    <div class="modal-overlay" id="impl-redo">
+        <div class="modal wide">
+            <div class="modal-header"><span class="modal-title">重新决策申请 — 风光储一体化基地</span><button class="modal-close">&times;</button></div>
+            <div class="modal-body">
+                <div class="detail-row"><span class="dl">项目名称：</span><span class="dv">风光储一体化基地</span></div>
+                <div class="detail-row"><span class="dl">原投资总额：</span><span class="dv">120,000 万元</span></div>
+                <div class="detail-row"><span class="dl">当前进度：</span><span class="dv">15%</span></div>
+                <div class="detail-row"><span class="dl">异常原因：</span><span class="dv"><span class="tag tag-error">用地审批延迟</span></span></div>
+                <div class="detail-section">
+                    <div class="sec-title">重新决策信息</div>
+                    <div class="form-group"><label>调整后金额：</label><input type="text" placeholder="请输入调整后投资总额（万元）"></div>
+                    <div class="form-group"><label>新实施周期：</label><div style="display:flex;gap:8px;flex:1;"><input type="date" style="flex:1;"><span>-</span><input type="date" style="flex:1;"></div></div>
+                    <div class="form-group" style="align-items:flex-start;"><label>调整原因：</label><textarea rows="4" placeholder="请说明重新决策的原因和调整方案...">因用地审批延迟，需要调整项目总投资和完工时间。</textarea></div>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-default" onclick="closeModal('impl-redo')">取消</button><button class="btn btn-primary" onclick="alert('重新决策申请已提交！');closeModal('impl-redo')">提交申请</button></div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.addEventListener('click', function(e) {
+        var item = e.target.closest('.menu-item');
+        if (!item) return;
+        var group = item.dataset.group;
+        if (group) {
+            var sub = sidebar.querySelector('.sub-menu[data-group="' + group + '"]');
+            if (sub) { sub.classList.toggle('open'); item.classList.toggle('expanded'); }
+        }
+    });
+
+    // 模态框交互函数
+    window.openModal = function(id) { document.getElementById(id).classList.add('active'); };
+    window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
+
+    // 关闭按钮事件
+    document.querySelectorAll('.modal-close').forEach(function(btn) {
+        btn.addEventListener('click', function() { closeModal(btn.closest('.modal-overlay').id); });
+    });
+    // 点击遮罩关闭
+    document.querySelectorAll('.modal-overlay').forEach(function(ov) {
+        ov.addEventListener('click', function(e) { if (e.target === ov) closeModal(ov.id); });
+    });
+
+    // 项目实施管理-模态框交互
+    var implPage = document.getElementById('page-invest-impl');
+    if (implPage) {
+        implPage.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-impl-progress')) openModal('impl-progress');
+            if (e.target.classList.contains('btn-impl-detail')) openModal('impl-detail');
+            if (e.target.classList.contains('btn-impl-abnormal')) openModal('impl-abnormal');
+            if (e.target.classList.contains('btn-impl-redo')) openModal('impl-redo');
+        });
+    }
+});
+</script>
+</body>
+</html>

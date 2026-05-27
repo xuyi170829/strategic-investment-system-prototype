@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>战略与投资管理系统</title>
+<style>
+:root {
+    --primary-100: #0A6651;
+    --primary-200: #118A73;
+    --primary-300: #E8F5F2;
+    --accent-100: #2E8B57;
+    --accent-200: #0D4F42;
+    --text-100: #333333;
+    --text-200: #666666;
+    --text-300: #999999;
+    --text-white: #FFFFFF;
+    --bg-100: #FFFFFF;
+    --bg-200: #F5F5F5;
+    --bg-300: #EEEEEE;
+    --border-100: #E0E0E0;
+    --border-200: #D0D0D0;
+    --success: #52C41A;
+    --warning: #FAAD14;
+    --error: #FF4D4F;
+    --info: #1890FF;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg-200); color: var(--text-100); min-height: 100vh; font-size: 13px; }
+.header { height: 50px; background: linear-gradient(180deg, #0A6651 0%, #0D4F42 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+.header .logo-area { display: flex; align-items: center; gap: 10px; color: var(--text-white); }
+.header .logo-area .sys-name { font-size: 16px; font-weight: 600; letter-spacing: 1px; }
+.header .right-panel { display: flex; align-items: center; gap: 12px; }
+.header .right-panel .btn-icon { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: var(--text-white); cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 14px; transition: background 0.2s; }
+.header .right-panel .btn-icon:hover { background: rgba(255,255,255,0.25); }
+.header .right-panel .user-info { display: flex; align-items: center; gap: 8px; color: var(--text-white); cursor: pointer; }
+.header .right-panel .user-info .avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+
+.sidebar { width: 180px; background: var(--bg-100); border-right: 1px solid var(--border-100); position: fixed; top: 50px; left: 0; bottom: 0; overflow-y: auto; z-index: 999; }
+.sidebar .menu-item { height: 36px; line-height: 36px; padding: 0 16px; color: var(--text-100); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-size: 13px; border-left: 3px solid transparent; white-space: nowrap; }
+.sidebar .menu-item:hover { background: var(--bg-200); }
+.sidebar .menu-item.active { background: var(--primary-100); color: var(--text-white); border-left-color: var(--primary-200); }
+.sidebar .menu-item .menu-icon { font-size: 14px; width: 16px; text-align: center; }
+.sidebar .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.2s; }
+.sidebar .menu-item.expanded .arrow { transform: rotate(90deg); }
+.sidebar .sub-menu { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+.sidebar .sub-menu.open { max-height: 500px; }
+.sidebar .sub-menu .menu-item { padding-left: 40px; font-size: 12px; color: var(--text-200); }
+.sidebar .sub-menu .menu-item.active { background: transparent; color: var(--primary-100); border-left-color: var(--primary-100); font-weight: 500; }
+.sidebar .menu-divider { height: 1px; background: var(--border-100); margin: 4px 12px; }
+
+.main-area { margin-left: 180px; margin-top: 50px; padding: 0; min-height: calc(100vh - 50px); background: var(--bg-200); }
+.tab-bar { display: flex; align-items: center; background: var(--bg-100); border-bottom: 1px solid var(--border-100); height: 36px; padding: 0 8px; gap: 2px; overflow-x: auto; }
+.tab-bar .tab-item { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-200); border: 1px solid var(--border-100); border-bottom: none; border-radius: 4px 4px 0 0; cursor: pointer; font-size: 12px; color: var(--text-200); white-space: nowrap; transition: all 0.15s; }
+.tab-bar .tab-item.active { background: var(--bg-100); color: var(--primary-100); font-weight: 500; border-bottom: 2px solid var(--bg-100); margin-bottom: -1px; }
+.tab-bar .tab-item .tab-close { font-size: 10px; margin-left: 2px; color: var(--text-300); }
+.tab-bar .tab-item .tab-close:hover { color: var(--error); }
+.page-content { display: none; padding: 16px; }
+.page-content.active { display: block; }
+
+.card { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+.card-title { font-size: 14px; font-weight: 500; color: var(--text-100); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-100); }
+.stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+.stat-card { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 20px; position: relative; }
+.stat-card .stat-label { font-size: 13px; color: var(--text-200); margin-bottom: 8px; }
+.stat-card .stat-value { font-size: 28px; font-weight: 600; color: var(--primary-100); }
+.stat-card .stat-icon { position: absolute; right: 20px; top: 20px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.stat-card .stat-icon.green { background: var(--primary-300); color: var(--primary-100); }
+.stat-card .stat-icon.blue { background: #E6F7FF; color: var(--info); }
+.stat-card .stat-icon.orange { background: #FFF7E6; color: var(--warning); }
+.stat-card .stat-icon.red { background: #FFF1F0; color: var(--error); }
+
+.btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; border: none; transition: all 0.2s; }
+.btn-primary { background: var(--primary-100); color: var(--text-white); }
+.btn-primary:hover { background: var(--primary-200); }
+.btn-default { background: var(--bg-100); color: var(--text-100); border: 1px solid var(--border-100); }
+.btn-default:hover { background: var(--bg-200); }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+.search-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.search-bar label { color: var(--text-100); font-size: 13px; white-space: nowrap; }
+.search-bar input, .search-bar select { padding: 6px 12px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 13px; background: var(--bg-100); width: 180px; outline: none; }
+.search-bar input:focus, .search-bar select:focus { border-color: var(--primary-100); }
+.search-bar .date-range { display: flex; align-items: center; gap: 8px; }
+.search-bar .date-range span { color: var(--text-300); }
+
+.table-wrap { overflow-x: auto; }
+table.data-table { width: 100%; border-collapse: collapse; }
+table.data-table th { background: var(--bg-200); padding: 10px 12px; text-align: left; font-weight: 500; color: var(--text-100); border-bottom: 1px solid var(--border-100); font-size: 13px; white-space: nowrap; }
+table.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-100); font-size: 13px; }
+table.data-table tbody tr:hover { background: var(--bg-200); }
+table.data-table .link { color: var(--accent-100); text-decoration: none; margin-right: 10px; cursor: pointer; }
+table.data-table .link:hover { text-decoration: underline; }
+table.data-table .link.danger { color: var(--error); }
+table.data-table .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+.tag-success { background: #F6FFED; color: var(--success); }
+.tag-warning { background: #FFF7E6; color: var(--warning); }
+.tag-error { background: #FFF1F0; color: var(--error); }
+.tag-info { background: #E6F7FF; color: var(--info); }
+.tag-default { background: var(--bg-200); color: var(--text-300); }
+
+.pagination { display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 12px 0; }
+.pagination .total { color: var(--text-200); font-size: 12px; margin-right: 10px; }
+.pagination .page-btn { width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--border-100); background: var(--bg-100); cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.pagination .page-btn.active { background: var(--primary-100); color: var(--text-white); border-color: var(--primary-100); }
+.pagination .page-btn:disabled { color: var(--text-300); cursor: not-allowed; }
+.pagination select { padding: 4px 8px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 12px; }
+
+.steps-bar { display: flex; align-items: center; margin: 16px 0; padding: 0 20px; }
+.steps-bar .step { display: flex; align-items: center; gap: 8px; color: var(--text-300); font-size: 13px; }
+.steps-bar .step .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--bg-200); border: 2px solid var(--border-100); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; }
+.steps-bar .step.active .step-num { background: var(--primary-100); color: var(--text-white); border-color: var(--primary-100); }
+.steps-bar .step.active { color: var(--primary-100); font-weight: 500; }
+.steps-bar .step.done .step-num { background: var(--success); color: var(--text-white); border-color: var(--success); }
+.steps-bar .step-line { width: 40px; height: 2px; background: var(--border-100); margin: 0 8px; }
+.steps-bar .step-line.done { background: var(--success); }
+
+.form-row { display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
+.form-group { display: flex; flex-direction: column; gap: 4px; min-width: 200px; }
+.form-group label { font-size: 13px; color: var(--text-100); font-weight: 500; }
+.form-group input, .form-group select, .form-group textarea { padding: 6px 12px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 13px; background: var(--bg-100); outline: none; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary-100); }
+.form-group textarea { resize: vertical; min-height: 60px; }
+.form-group .required::after { content: ' *'; color: var(--error); }
+
+.timeline { padding: 10px 0; }
+.timeline .tl-item { display: flex; gap: 16px; padding: 10px 0; position: relative; }
+.timeline .tl-item::before { content: ''; position: absolute; left: 7px; top: 30px; bottom: -10px; width: 2px; background: var(--border-100); }
+.timeline .tl-item:last-child::before { display: none; }
+.timeline .tl-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--primary-100); flex-shrink: 0; margin-top: 2px; }
+.timeline .tl-dot.done { background: var(--success); }
+.timeline .tl-dot.current { background: var(--warning); box-shadow: 0 0 0 3px rgba(250,173,20,0.2); }
+.timeline .tl-content .tl-title { font-weight: 500; color: var(--text-100); font-size: 13px; }
+.timeline .tl-content .tl-desc { color: var(--text-200); font-size: 12px; margin-top: 2px; }
+.timeline .tl-content .tl-time { color: var(--text-300); font-size: 11px; }
+
+.chart-area { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.chart-box { border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; background: var(--bg-100); }
+.chart-box .chart-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: var(--text-100); }
+.chart-placeholder { height: 220px; background: var(--bg-200); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-300); font-size: 13px; }
+
+.mobile-frame { width: 375px; height: 700px; border: 1px solid var(--border-100); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin: 0 auto; }
+.mobile-frame .mobile-header { background: linear-gradient(180deg, #0A6651, #0D4F42); color: var(--text-white); padding: 10px 16px; font-size: 14px; font-weight: 500; text-align: center; }
+.mobile-frame .mobile-body { padding: 12px; background: var(--bg-200); height: calc(100% - 40px); overflow-y: auto; }
+.mobile-frame .mobile-item { background: var(--bg-100); border-radius: 6px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border-100); }
+.mobile-frame .mobile-item .mi-title { font-weight: 500; margin-bottom: 4px; font-size: 13px; }
+.mobile-frame .mobile-item .mi-sub { color: var(--text-200); font-size: 12px; }
+.mobile-frame .mobile-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.mobile-frame .mobile-badge.urgent { background: #FFF1F0; color: var(--error); }
+
+@media (max-width: 768px) {
+    .sidebar { width: 60px; }
+    .sidebar .menu-item span:not(.menu-icon) { display: none; }
+    .main-area { margin-left: 60px; }
+    .stat-cards { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+
+<body>
+<header class="header">
+    <div class="logo-area">
+        <span style="font-size:20px;">◈</span>
+        <span class="sys-name">战略与投资管理系统</span>
+    </div>
+    <div class="right-panel">
+        <div class="btn-icon" title="消息">✉</div>
+        <div class="btn-icon" title="全屏">⛶</div>
+        <div class="user-info">
+            <div class="avatar">张</div>
+            <span style="font-size:13px;">管理员</span>
+        </div>
+    </div>
+</header>
+
+<aside class="sidebar" id="sidebar">
+    <div class="menu-item" data-page="home" data-tab="主页">
+        <span class="menu-icon">⌂</span><span>主页</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="devplan">
+        <span class="menu-icon">📋</span><span>发展规划管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="devplan">
+        <div class="menu-item" data-page="plan-compile" data-tab="规划编制管理">
+            <span>规划编制管理</span>
+        </div>
+        <div class="menu-item" data-page="plan-exec" data-tab="规划执行管理">
+            <span>规划执行管理</span>
+        </div>
+        <div class="menu-item" data-page="plan-adjust" data-tab="规划调整管理">
+            <span>规划调整管理</span>
+        </div>
+    </div>
+    <div class="menu-item" data-group="cooper">
+        <span class="menu-icon">🤝</span><span>战略合作管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="cooper">
+        <div class="menu-item" data-page="agree-list" data-tab="协议信息管理">
+            <span>协议信息管理</span>
+        </div>
+        <div class="menu-item" data-page="agree-lifecycle" data-tab="协议生命周期">
+            <span>协议生命周期</span>
+        </div>
+        <div class="menu-item" data-page="subsidiary" data-tab="二级公司管理">
+            <span>二级公司管理</span>
+        </div>
+    </div>
+    <div class="menu-item" data-group="invest">
+        <span class="menu-icon">💰</span><span>投资管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="invest">
+        <div class="menu-item" data-page="invest-init" data-tab="前期立项管理">
+            <span>前期立项管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-decision" data-tab="投资决策管理">
+            <span>投资决策管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-impl" data-tab="项目实施管理">
+            <span>项目实施管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-eval" data-tab="总结评价管理">
+            <span>总结评价管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-index" data-tab="投资指标库">
+            <span>投资指标库</span>
+        </div>
+    </div>
+    <div class="menu-item expanded" data-group="decision">
+        <span class="menu-icon">📊</span><span>辅助决策</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu open" data-group="decision">
+        <div class="menu-item" data-page="strategy-map" data-tab="战略地图">
+            <span>战略地图</span>
+        </div>
+        <div class="menu-item" data-page="project-overview" data-tab="项目总览">
+            <span>项目总览</span>
+        </div>
+        <div class="menu-item" data-page="invest-ops" data-tab="投资运营">
+            <span>投资运营</span>
+        </div>
+        <div class="menu-item" data-page="industry" data-tab="行业研判">
+            <span>行业研判</span>
+        </div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="system">
+        <span class="menu-icon">⚙</span><span>系统管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="system">
+        <div class="menu-item" data-page="user-mgmt" data-tab="用户管理">
+            <span>用户管理</span>
+        </div>
+        <div class="menu-item" data-page="role-mgmt" data-tab="权限管理">
+            <span>权限管理</span>
+        </div>
+    </div>
+</aside>
+<div class="main-area">
+    <div class="tab-bar"></div>
+<div class="page-content active" id="page-industry">
+        <div class="card">
+            <div class="card-title">行业研判分析</div>
+            <div class="search-bar" style="margin-bottom:12px;">
+                <label>目标行业：</label><select><option>新能源</option><option>矿业</option><option>物流</option><option>金融科技</option></select>
+                <label>分析维度：</label><select><option>成本趋势</option><option>市场容量</option><option>竞争格局</option><option>政策环境</option></select>
+                <button class="btn btn-primary">分析</button>
+            </div>
+            <div class="chart-area" style="margin-top:12px;">
+                <div class="chart-box"><div class="chart-title">行业成本趋势预测</div><div class="chart-placeholder">📈 多维度成本趋势分析模型</div></div>
+                <div class="chart-box"><div class="chart-title">市场容量预测</div><div class="chart-placeholder">📊 未来5年市场容量预测</div></div>
+                <div class="chart-box"><div class="chart-title">竞争格局分析</div><div class="chart-placeholder">🎯 主要竞争对手市场份额</div></div>
+                <div class="chart-box"><div class="chart-title">政策风险评估</div><div class="chart-placeholder">⚖ 政策法规影响评估矩阵</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var sidebar = document.getElementById('sidebar');
+    sidebar.addEventListener('click', function(e) {
+        var item = e.target.closest('.menu-item');
+        if (!item) return;
+        var group = item.dataset.group;
+        if (group) {
+            var sub = sidebar.querySelector('.sub-menu[data-group="' + group + '"]');
+            if (sub) { sub.classList.toggle('open'); item.classList.toggle('expanded'); }
+        }
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>战略与投资管理系统</title>
+<style>
+:root {
+    --primary-100: #0A6651;
+    --primary-200: #118A73;
+    --primary-300: #E8F5F2;
+    --accent-100: #2E8B57;
+    --accent-200: #0D4F42;
+    --text-100: #333333;
+    --text-200: #666666;
+    --text-300: #999999;
+    --text-white: #FFFFFF;
+    --bg-100: #FFFFFF;
+    --bg-200: #F5F5F5;
+    --bg-300: #EEEEEE;
+    --border-100: #E0E0E0;
+    --border-200: #D0D0D0;
+    --success: #52C41A;
+    --warning: #FAAD14;
+    --error: #FF4D4F;
+    --info: #1890FF;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg-200); color: var(--text-100); min-height: 100vh; font-size: 13px; }
+.header { height: 50px; background: linear-gradient(180deg, #0A6651 0%, #0D4F42 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+.header .logo-area { display: flex; align-items: center; gap: 10px; color: var(--text-white); }
+.header .logo-area .sys-name { font-size: 16px; font-weight: 600; letter-spacing: 1px; }
+.header .right-panel { display: flex; align-items: center; gap: 12px; }
+.header .right-panel .btn-icon { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: var(--text-white); cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 14px; transition: background 0.2s; }
+.header .right-panel .btn-icon:hover { background: rgba(255,255,255,0.25); }
+.header .right-panel .user-info { display: flex; align-items: center; gap: 8px; color: var(--text-white); cursor: pointer; }
+.header .right-panel .user-info .avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+
+.sidebar { width: 180px; background: var(--bg-100); border-right: 1px solid var(--border-100); position: fixed; top: 50px; left: 0; bottom: 0; overflow-y: auto; z-index: 999; }
+.sidebar .menu-item { height: 36px; line-height: 36px; padding: 0 16px; color: var(--text-100); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-size: 13px; border-left: 3px solid transparent; white-space: nowrap; }
+.sidebar .menu-item:hover { background: var(--bg-200); }
+.sidebar .menu-item.active { background: var(--primary-100); color: var(--text-white); border-left-color: var(--primary-200); }
+.sidebar .menu-item .menu-icon { font-size: 14px; width: 16px; text-align: center; }
+.sidebar .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.2s; }
+.sidebar .menu-item.expanded .arrow { transform: rotate(90deg); }
+.sidebar .sub-menu { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+.sidebar .sub-menu.open { max-height: 500px; }
+.sidebar .sub-menu .menu-item { padding-left: 40px; font-size: 12px; color: var(--text-200); }
+.sidebar .sub-menu .menu-item.active { background: transparent; color: var(--primary-100); border-left-color: var(--primary-100); font-weight: 500; }
+.sidebar .menu-divider { height: 1px; background: var(--border-100); margin: 4px 12px; }
+
+.main-area { margin-left: 180px; margin-top: 50px; padding: 0; min-height: calc(100vh - 50px); background: var(--bg-200); }
+.tab-bar { display: flex; align-items: center; background: var(--bg-100); border-bottom: 1px solid var(--border-100); height: 36px; padding: 0 8px; gap: 2px; overflow-x: auto; }
+.tab-bar .tab-item { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-200); border: 1px solid var(--border-100); border-bottom: none; border-radius: 4px 4px 0 0; cursor: pointer; font-size: 12px; color: var(--text-200); white-space: nowrap; transition: all 0.15s; }
+.tab-bar .tab-item.active { background: var(--bg-100); color: var(--primary-100); font-weight: 500; border-bottom: 2px solid var(--bg-100); margin-bottom: -1px; }
+.tab-bar .tab-item .tab-close { font-size: 10px; margin-left: 2px; color: var(--text-300); }
+.tab-bar .tab-item .tab-close:hover { color: var(--error); }
+.page-content { display: none; padding: 16px; }
+.page-content.active { display: block; }
+
+.card { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+.card-title { font-size: 14px; font-weight: 500; color: var(--text-100); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-100); }
+
+/* 工作台特有样式 */
+.workbench-header { margin-bottom: 16px; }
+.workbench-title { font-size: 16px; font-weight: 600; color: var(--text-100); margin-bottom: 4px; }
+.workbench-subtitle { font-size: 12px; color: var(--text-200); }
+
+.stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.stat-card { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; position: relative; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.stat-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.stat-card .stat-inner { display: flex; justify-content: space-between; align-items: flex-start; }
+.stat-card .stat-label { font-size: 12px; color: var(--text-200); margin-bottom: 4px; }
+.stat-card .stat-value { font-size: 16px; font-weight: 600; color: var(--text-100); margin-bottom: 4px; }
+.stat-card .stat-trend { font-size: 11px; }
+.stat-card .stat-trend.up { color: var(--success); }
+.stat-card .stat-trend.normal { color: var(--success); }
+.stat-card .stat-trend.warn { color: var(--error); }
+.stat-card .stat-icon { width: 40px; height: 40px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.stat-card .stat-icon.blue { background: rgba(43,126,255,0.1); color: #2B7EFF; }
+.stat-card .stat-icon.green { background: rgba(10,102,81,0.1); color: var(--primary-100); }
+.stat-card .stat-icon.orange { background: rgba(250,173,20,0.1); color: var(--warning); }
+.stat-card .stat-icon.red { background: rgba(255,77,79,0.1); color: var(--error); }
+.stat-card .stat-icon.purple { background: rgba(114,46,209,0.1); color: #722ED1; }
+.stat-card .stat-icon.teal { background: rgba(82,196,26,0.1); color: var(--success); }
+
+.progress-bar { width: 100%; height: 8px; background: var(--bg-300); border-radius: 10px; overflow: hidden; margin-top: 12px; }
+.progress-bar .progress-fill { height: 100%; background: var(--success); border-radius: 10px; transition: width 0.3s; }
+.progress-bar .progress-fill.warning { background: var(--warning); }
+.progress-bar .progress-fill.danger { background: var(--error); }
+.progress-bar .progress-fill.success { background: var(--success); }
+.progress-status { font-size: 11px; margin-top: 4px; display: inline-block; }
+.progress-status.normal { color: var(--success); }
+.progress-status.overdue { color: var(--error); }
+.progress-status.advanced { color: var(--primary-100); }
+
+.workbench-row { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 12px; }
+.workbench-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.workbench-section { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.section-title { font-size: 14px; font-weight: 500; color: var(--text-100); }
+.section-more { font-size: 13px; color: var(--accent-100); cursor: pointer; }
+.section-more:hover { text-decoration: underline; }
+
+.task-list { display: flex; flex-direction: column; gap: 8px; }
+.task-item { display: flex; gap: 8px; padding: 8px; background: var(--bg-200); border-radius: 4px; align-items: center; }
+.task-icon { width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+.task-icon.blue { background: rgba(10,102,81,0.1); color: var(--primary-100); }
+.task-icon.orange { background: rgba(250,173,20,0.1); color: var(--warning); }
+.task-icon.red { background: rgba(24,144,255,0.1); color: var(--info); }
+.task-content { flex: 1; }
+.task-title { font-size: 13px; font-weight: 500; color: var(--text-100); margin-bottom: 2px; }
+.task-meta { font-size: 11px; color: var(--text-200); }
+.task-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px; }
+.task-badge.urgent { background: #FFF1F0; color: var(--error); }
+.task-action { padding: 4px 12px; background: var(--primary-100); color: var(--text-white); border: none; border-radius: 4px; font-size: 11px; cursor: pointer; }
+.task-action:hover { background: var(--primary-200); }
+
+.subsidiary-progress { display: flex; flex-direction: column; gap: 12px; }
+.progress-item { display: flex; flex-direction: column; gap: 4px; }
+.progress-item-header { display: flex; justify-content: space-between; align-items: center; }
+.progress-item-header span:first-child { font-size: 13px; color: var(--text-100); }
+.progress-item-header span:last-child { font-size: 12px; color: var(--text-200); }
+
+.alert-list { display: flex; flex-direction: column; gap: 8px; }
+.alert-item { display: flex; gap: 8px; padding: 8px; background: rgba(255,77,79,0.03); border: 1px solid rgba(255,77,79,0.2); border-radius: 4px; align-items: center; }
+.alert-item.warning { background: rgba(250,173,20,0.03); border-color: rgba(250,173,20,0.2); }
+.alert-icon { width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+.alert-icon.danger { background: rgba(255,77,79,0.1); color: var(--error); }
+.alert-icon.warning { background: rgba(250,173,20,0.1); color: var(--warning); }
+
+.chart-container { width: 100%; padding: 10px; }
+.chart-placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-300); font-size: 13px; background: var(--bg-200); border-radius: 4px; }
+
+/* 项目状态分布饼图样式 */
+.project-chart { display: flex; flex-direction: column; }
+.pie-chart-container { display: flex; align-items: center; gap: 16px; padding: 8px 0; }
+.pie-chart { width: 110px; height: 110px; position: relative; flex-shrink: 0; }
+.pie-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.pie-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+.pie-total { font-size: 22px; font-weight: 600; color: var(--text-100); }
+.pie-label { font-size: 11px; color: var(--text-300); margin-top: 2px; }
+.pie-legend { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.pie-legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+.legend-name { color: var(--text-200); flex: 1; }
+.legend-count { color: var(--text-100); font-weight: 500; }
+
+/* 重点项目进度样式 */
+.key-projects { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-100); }
+.key-projects-title { font-size: 12px; color: var(--text-200); margin-bottom: 8px; }
+.key-project-list { display: flex; flex-direction: column; gap: 8px; }
+.key-project-item { display: flex; flex-direction: column; gap: 4px; }
+.key-project-header { display: flex; align-items: center; justify-content: space-between; }
+.key-project-name { font-size: 13px; color: var(--text-100); font-weight: 500; }
+.key-project-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(250, 173, 20, 0.1); color: #FAA714; }
+.key-project-progress-wrapper { display: flex; align-items: center; gap: 8px; }
+.key-project-bar { flex: 1; height: 8px; background: var(--bg-200); border-radius: 4px; overflow: hidden; }
+.key-project-fill { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
+.key-project-fill.normal { background: linear-gradient(to right, #0A6651, #118A73); }
+.key-project-fill.warning { background: linear-gradient(to right, #FAA714, #F5C068); }
+.key-project-fill.danger { background: linear-gradient(to right, #FF4D4F, #FF7875); }
+.key-project-percent { font-size: 12px; font-weight: 600; color: var(--text-100); white-space: nowrap; }
+.key-project-footer { display: flex; justify-content: flex-start; font-size: 11px; color: var(--text-300); }
+
+/* 快捷操作样式 */
+.quick-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.quick-action { display: flex; flex-direction: column; align-items: center; padding: 20px 12px; background: var(--bg-200); border-radius: 8px; cursor: pointer; transition: all 0.2s; border: 1px solid transparent; }
+.quick-action:hover { background: var(--primary-300); border-color: var(--primary-100); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.quick-action-icon { width: 44px; height: 44px; border-radius: 10px; background: rgba(10,102,81,0.1); display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--primary-100); margin-bottom: 10px; }
+.quick-action span { font-size: 13px; font-weight: 500; color: var(--text-100); }
+
+.btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 13px; border: none; transition: all 0.2s; }
+.btn-primary { background: var(--primary-100); color: var(--text-white); }
+.btn-primary:hover { background: var(--primary-200); }
+.btn-default { background: var(--bg-100); color: var(--text-100); border: 1px solid var(--border-100); }
+.btn-default:hover { background: var(--bg-200); }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+.search-bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.search-bar label { color: var(--text-100); font-size: 13px; white-space: nowrap; }
+.search-bar input, .search-bar select { padding: 6px 12px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 13px; background: var(--bg-100); width: 180px; outline: none; }
+.search-bar input:focus, .search-bar select:focus { border-color: var(--primary-100); }
+.search-bar .date-range { display: flex; align-items: center; gap: 8px; }
+.search-bar .date-range span { color: var(--text-300); }
+
+.table-wrap { overflow-x: auto; }
+table.data-table { width: 100%; border-collapse: collapse; }
+table.data-table th { background: var(--bg-200); padding: 10px 12px; text-align: left; font-weight: 500; color: var(--text-100); border-bottom: 1px solid var(--border-100); font-size: 13px; white-space: nowrap; }
+table.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-100); font-size: 13px; }
+table.data-table tbody tr:hover { background: var(--bg-200); }
+table.data-table .link { color: var(--accent-100); text-decoration: none; margin-right: 10px; cursor: pointer; }
+table.data-table .link:hover { text-decoration: underline; }
+table.data-table .link.danger { color: var(--error); }
+table.data-table .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+.tag-success { background: #F6FFED; color: var(--success); }
+.tag-warning { background: #FFF7E6; color: var(--warning); }
+.tag-error { background: #FFF1F0; color: var(--error); }
+.tag-info { background: #E6F7FF; color: var(--info); }
+.tag-default { background: var(--bg-200); color: var(--text-300); }
+
+.pagination { display: flex; justify-content: flex-end; align-items: center; gap: 10px; padding: 12px 0; }
+.pagination .total { color: var(--text-200); font-size: 12px; margin-right: 10px; }
+.pagination .page-btn { width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--border-100); background: var(--bg-100); cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.pagination .page-btn.active { background: var(--primary-100); color: var(--text-white); border-color: var(--primary-100); }
+.pagination .page-btn:disabled { color: var(--text-300); cursor: not-allowed; }
+.pagination select { padding: 4px 8px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 12px; }
+
+.steps-bar { display: flex; align-items: center; margin: 16px 0; padding: 0 20px; }
+.steps-bar .step { display: flex; align-items: center; gap: 8px; color: var(--text-300); font-size: 13px; }
+.steps-bar .step .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--bg-200); border: 2px solid var(--border-100); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; }
+.steps-bar .step.active .step-num { background: var(--primary-100); color: var(--text-white); border-color: var(--primary-100); }
+.steps-bar .step.active { color: var(--primary-100); font-weight: 500; }
+.steps-bar .step.done .step-num { background: var(--success); color: var(--text-white); border-color: var(--success); }
+.steps-bar .step-line { width: 40px; height: 2px; background: var(--border-100); margin: 0 8px; }
+.steps-bar .step-line.done { background: var(--success); }
+
+.form-row { display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
+.form-group { display: flex; flex-direction: column; gap: 4px; min-width: 200px; }
+.form-group label { font-size: 13px; color: var(--text-100); font-weight: 500; }
+.form-group input, .form-group select, .form-group textarea { padding: 6px 12px; border: 1px solid var(--border-100); border-radius: 4px; font-size: 13px; background: var(--bg-100); outline: none; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary-100); }
+.form-group textarea { resize: vertical; min-height: 60px; }
+.form-group .required::after { content: ' *'; color: var(--error); }
+
+.timeline { padding: 10px 0; }
+.timeline .tl-item { display: flex; gap: 16px; padding: 10px 0; position: relative; }
+.timeline .tl-item::before { content: ''; position: absolute; left: 7px; top: 30px; bottom: -10px; width: 2px; background: var(--border-100); }
+.timeline .tl-item:last-child::before { display: none; }
+.timeline .tl-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--primary-100); flex-shrink: 0; margin-top: 2px; }
+.timeline .tl-dot.done { background: var(--success); }
+.timeline .tl-dot.current { background: var(--warning); box-shadow: 0 0 0 3px rgba(250,173,20,0.2); }
+.timeline .tl-content .tl-title { font-weight: 500; color: var(--text-100); font-size: 13px; }
+.timeline .tl-content .tl-desc { color: var(--text-200); font-size: 12px; margin-top: 2px; }
+.timeline .tl-content .tl-time { color: var(--text-300); font-size: 11px; }
+
+.chart-area { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.chart-box { border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; background: var(--bg-100); }
+.chart-box .chart-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: var(--text-100); }
+.chart-placeholder { height: 220px; background: var(--bg-200); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-300); font-size: 13px; }
+
+.mobile-frame { width: 375px; height: 700px; border: 1px solid var(--border-100); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin: 0 auto; }
+.mobile-frame .mobile-header { background: linear-gradient(180deg, #0A6651, #0D4F42); color: var(--text-white); padding: 10px 16px; font-size: 14px; font-weight: 500; text-align: center; }
+.mobile-frame .mobile-body { padding: 12px; background: var(--bg-200); height: calc(100% - 40px); overflow-y: auto; }
+.mobile-frame .mobile-item { background: var(--bg-100); border-radius: 6px; padding: 12px; margin-bottom: 8px; border: 1px solid var(--border-100); }
+.mobile-frame .mobile-item .mi-title { font-weight: 500; margin-bottom: 4px; font-size: 13px; }
+.mobile-frame .mobile-item .mi-sub { color: var(--text-200); font-size: 12px; }
+.mobile-frame .mobile-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+.mobile-frame .mobile-badge.urgent { background: #FFF1F0; color: var(--error); }
+
+@media (max-width: 768px) {
+    .sidebar { width: 60px; }
+    .sidebar .menu-item span:not(.menu-icon) { display: none; }
+    .main-area { margin-left: 60px; }
+    .stat-cards { grid-template-columns: repeat(2, 1fr); }
+    .workbench-content { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+
+<body>
+<header class="header">
+    <div class="logo-area">
+        <span style="font-size:20px;">◈</span>
+        <span class="sys-name">战略与投资管理系统</span>
+    </div>
+    <div class="right-panel">
+        <div class="btn-icon" title="消息">✉</div>
+        <div class="btn-icon" title="全屏">⛶</div>
+        <div class="user-info">
+            <div class="avatar">张</div>
+            <span style="font-size:13px;">管理员</span>
+        </div>
+    </div>
+</header>
+
+<aside class="sidebar" id="sidebar">
+    <div class="menu-item active" data-page="home" data-tab="主页">
+        <span class="menu-icon">⌂</span><span>主页</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="devplan">
+        <span class="menu-icon">📋</span><span>发展规划管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="devplan">
+        <div class="menu-item" data-page="plan-compile" data-tab="规划编制管理">
+            <span>规划编制管理</span>
+        </div>
+        <div class="menu-item" data-page="plan-exec" data-tab="规划执行管理">
+            <span>规划执行管理</span>
+        </div>
+        <div class="menu-item" data-page="plan-adjust" data-tab="规划调整管理">
+            <span>规划调整管理</span>
+        </div>
+    </div>
+    <div class="menu-item" data-group="cooper">
+        <span class="menu-icon">🤝</span><span>战略合作管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="cooper">
+        <div class="menu-item" data-page="cooper-initiate" data-tab="合作发起">
+            <span>合作发起</span>
+        </div>
+        <div class="menu-item" data-page="cooper-draft" data-tab="协议起草">
+            <span>协议起草</span>
+        </div>
+        <div class="menu-item" data-page="cooper-approve" data-tab="审批与签署">
+            <span>审批与签署</span>
+        </div>
+        <div class="menu-item" data-page="cooper-execute" data-tab="执行管理">
+            <span>执行管理</span>
+        </div>
+        <div class="menu-item" data-page="cooper-evaluate" data-tab="评估管理">
+            <span>评估管理</span>
+        </div>
+        <div class="menu-item" data-page="agree-list" data-tab="协议信息管理">
+            <span>协议信息管理</span>
+        </div>
+        <div class="menu-item" data-page="subsidiary" data-tab="二级公司管理">
+            <span>二级公司管理</span>
+        </div>
+    </div>
+    <div class="menu-item" data-group="invest">
+        <span class="menu-icon">💰</span><span>投资管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="invest">
+        <div class="menu-item" data-page="invest-init" data-tab="前期立项管理">
+            <span>前期立项管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-decision" data-tab="投资决策管理">
+            <span>投资决策管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-impl" data-tab="项目实施管理">
+            <span>项目实施管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-eval" data-tab="总结评价管理">
+            <span>总结评价管理</span>
+        </div>
+        <div class="menu-item" data-page="invest-index" data-tab="投资指标库">
+            <span>投资指标库</span>
+        </div>
+    </div>
+    <div class="menu-item" data-group="decision">
+        <span class="menu-icon">📊</span><span>辅助决策</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="decision">
+        <div class="menu-item" data-page="strategy-map" data-tab="战略地图">
+            <span>战略地图</span>
+        </div>
+        <div class="menu-item" data-page="project-overview" data-tab="项目总览">
+            <span>项目总览</span>
+        </div>
+        <div class="menu-item" data-page="invest-ops" data-tab="投资运营">
+            <span>投资运营</span>
+        </div>
+        <div class="menu-item" data-page="industry" data-tab="行业研判">
+            <span>行业研判</span>
+        </div>
+    </div>
+    <div class="menu-item" data-group="ai">
+        <span class="menu-icon">🤖</span><span>智慧应用</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="ai">
+        <div class="menu-item" data-page="ai-search" data-tab="AI智慧搜索">
+            <span>AI智慧搜索</span>
+        </div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="system">
+        <span class="menu-icon">⚙</span><span>系统管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="system">
+        <div class="menu-item" data-page="user-mgmt" data-tab="用户管理">
+            <span>用户管理</span>
+        </div>
+        <div class="menu-item" data-page="role-mgmt" data-tab="权限管理">
+            <span>权限管理</span>
+        </div>
+        <div class="menu-item" data-page="flow-mgmt" data-tab="流程管理">
+            <span>流程管理</span>
+        </div>
+        <div class="menu-item" data-page="log-mgmt" data-tab="日志管理">
+            <span>日志管理</span>
+        </div>
+    </div>
+</aside>
+<div class="main-area">
+    <div class="tab-bar"></div>
+<div class="page-content active" id="page-home">
+    <div class="workbench-header">
+        <h1 class="workbench-title">工作台</h1>
+        <p class="workbench-subtitle">欢迎回来，管理员，这是您的业务概览</p>
+    </div>
+
+    <!-- 数据概览卡片 -->
+    <div class="stat-cards">
+        <div class="stat-card">
+            <div class="stat-inner">
+                <div>
+                    <div class="stat-label">战略合作协议</div>
+                    <div class="stat-value">128</div>
+                    <div class="stat-trend up">较上月 +5</div>
+                </div>
+                <div class="stat-icon green">🤝</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-inner">
+                <div>
+                    <div class="stat-label">投资项目</div>
+                    <div class="stat-value">46</div>
+                    <div class="stat-trend up">较上月 +2</div>
+                </div>
+                <div class="stat-icon orange">💰</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-inner">
+                <div>
+                    <div class="stat-label">待办任务</div>
+                    <div class="stat-value">18</div>
+                    <div class="stat-trend warn">超期 3 项</div>
+                </div>
+                <div class="stat-icon red">📋</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-inner">
+                <div>
+                    <div class="stat-label">规划执行进度</div>
+                    <div class="stat-value">68%</div>
+                    <div class="stat-trend normal">正常推进</div>
+                </div>
+                <div class="stat-icon teal">📊</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第一行：快捷操作 + 执行进度趋势 -->
+    <div class="workbench-row">
+        <div class="workbench-section">
+            <div class="section-header">
+                <span class="section-title">快捷操作</span>
+            </div>
+            <div class="quick-actions">
+                <div class="quick-action" data-page="cooper-initiate">
+                        <div class="quick-action-icon">📝</div>
+                        <span>发起合作</span>
+                </div>
+                <div class="quick-action" data-page="invest-init">
+                    <div class="quick-action-icon">➕</div>
+                    <span>立项申请</span>
+                </div>
+                <div class="quick-action" data-page="plan-exec">
+                    <div class="quick-action-icon">📄</div>
+                    <span>填报进度</span>
+                </div>
+                <div class="quick-action" data-page="project-overview">
+                    <div class="quick-action-icon">📊</div>
+                    <span>查看报表</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="workbench-section">
+                <div class="section-header">
+                    <span class="section-title">项目状态概览</span>
+                </div>
+                <div class="chart-container">
+                    <div class="project-chart">
+                        <!-- 饼图部分 -->
+                        <div class="pie-chart-container">
+                            <div class="pie-chart">
+                                <svg class="pie-svg" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#E5E7EB" stroke-width="20"/>
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#0A6651" stroke-width="20" stroke-dasharray="150.8 251.3"/>
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#118A73" stroke-width="20" stroke-dasharray="75.4 251.3" stroke-dashoffset="-150.8"/>
+                                    <circle cx="50" cy="50" r="40" fill="none" stroke="#FF4D4F" stroke-width="20" stroke-dasharray="25.1 251.3" stroke-dashoffset="-226.2"/>
+                                </svg>
+                                <div class="pie-center">
+                                    <div class="pie-total">46</div>
+                                    <div class="pie-label">项目总数</div>
+                                </div>
+                            </div>
+                            <div class="pie-legend">
+                                <div class="pie-legend-item">
+                                    <div class="legend-dot" style="background: #0A6651;"></div>
+                                    <span class="legend-name">进行中</span>
+                                    <span class="legend-count">28</span>
+                                </div>
+                                <div class="pie-legend-item">
+                                    <div class="legend-dot" style="background: #118A73;"></div>
+                                    <span class="legend-name">已完成</span>
+                                    <span class="legend-count">14</span>
+                                </div>
+                                <div class="pie-legend-item">
+                                    <div class="legend-dot" style="background: #FF4D4F;"></div>
+                                    <span class="legend-name">进度逾期</span>
+                                    <span class="legend-count">4</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 重点项目进度 -->
+                        <div class="key-projects">
+                            <div class="key-projects-title">重点项目进度</div>
+                            <div class="key-project-list">
+                                <div class="key-project-item">
+                                    <div class="key-project-header">
+                                        <span class="key-project-name">新能源产业落地项目</span>
+                                        <span class="key-project-badge">重点</span>
+                                    </div>
+                                    <div class="key-project-progress-wrapper">
+                                        <div class="key-project-bar">
+                                            <div class="key-project-fill normal" style="width: 75%;"></div>
+                                        </div>
+                                        <span class="key-project-percent">75%</span>
+                                    </div>
+                                    <div class="key-project-footer">
+                                        <span>计划完成：2026-08-30</span>
+                                    </div>
+                                </div>
+                                <div class="key-project-item">
+                                    <div class="key-project-header">
+                                        <span class="key-project-name">数字化转型二期</span>
+                                        <span class="key-project-badge">重点</span>
+                                    </div>
+                                    <div class="key-project-progress-wrapper">
+                                        <div class="key-project-bar">
+                                            <div class="key-project-fill warning" style="width: 55%;"></div>
+                                        </div>
+                                        <span class="key-project-percent">55%</span>
+                                    </div>
+                                    <div class="key-project-footer">
+                                        <span>计划完成：2026-06-15</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <!-- 第二行：我的待办 + 预警任务 -->
+    <div class="workbench-row-2">
+        <div class="workbench-section">
+            <div class="section-header">
+                <span class="section-title">我的待办</span>
+                <span class="section-more">查看全部</span>
+            </div>
+            <div class="task-list">
+                <div class="task-item">
+                    <div class="task-icon blue">📄</div>
+                    <div class="task-content">
+                        <div class="task-title">2026年度规划编制审批</div>
+                        <div class="task-meta">战规部 · 2026-05-30</div>
+                    </div>
+                    <button class="task-action">处理</button>
+                </div>
+                <div class="task-item">
+                    <div class="task-icon orange">🤝</div>
+                    <div class="task-content">
+                        <div class="task-title">XX区域战略合作协议会签</div>
+                        <div class="task-meta">董事会 · 2026-05-28</div>
+                    </div>
+                    <button class="task-action">处理</button>
+                </div>
+                <div class="task-item">
+                    <div class="task-icon red">💰</div>
+                    <div class="task-content">
+                        <div class="task-title">XX投资项目立项申请</div>
+                        <div class="task-meta">投资部 · 2026-05-25</div>
+                    </div>
+                    <button class="task-action">处理</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="workbench-section">
+            <div class="section-header">
+                <span class="section-title">预警任务</span>
+                <span class="section-more">查看全部</span>
+            </div>
+            <div class="alert-list">
+                <div class="alert-item">
+                    <div class="alert-icon danger">⚠️</div>
+                    <div class="task-content">
+                        <div class="task-title">XX产业落地任务</div>
+                        <div class="task-meta">责任人：赵六 · 已超期5天</div>
+                    </div>
+                    <button class="task-action">填报进度</button>
+                </div>
+                <div class="alert-item warning">
+                    <div class="alert-icon warning">ℹ️</div>
+                    <div class="task-content">
+                        <div class="task-title">年度预算调整任务</div>
+                        <div class="task-meta">责任人：钱七 · 即将超期</div>
+                    </div>
+                    <button class="task-action">填报进度</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var sidebar = document.getElementById('sidebar');
+    sidebar.addEventListener('click', function(e) {
+        var item = e.target.closest('.menu-item');
+        if (!item) return;
+        var group = item.dataset.group;
+        if (group) {
+            var sub = sidebar.querySelector('.sub-menu[data-group="' + group + '"]');
+            if (sub) { sub.classList.toggle('open'); item.classList.toggle('expanded'); }
+        }
+    });
+
+    // 快捷操作点击事件
+    var quickActions = document.querySelectorAll('.quick-action');
+    quickActions.forEach(function(action) {
+        action.addEventListener('click', function() {
+            var page = this.dataset.page;
+            if (page) {
+                // 找到对应的侧边栏菜单项并激活
+                var menuItem = sidebar.querySelector('[data-page="' + page + '"]');
+                if (menuItem) {
+                    // 展开父菜单
+                    var parentGroup = menuItem.closest('.sub-menu');
+                    if (parentGroup) {
+                        parentGroup.classList.add('open');
+                        var groupToggle = parentGroup.previousElementSibling;
+                        if (groupToggle) {
+                            groupToggle.classList.add('expanded');
+                        }
+                    }
+                    // 激活菜单项
+                    sidebar.querySelectorAll('.menu-item').forEach(function(item) {
+                        item.classList.remove('active');
+                    });
+                    menuItem.classList.add('active');
+                    alert('即将跳转到: ' + (menuItem.dataset.tab || page));
+                }
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>战略与投资管理系统 - 执行进度看板</title>
+<style>
+:root {
+    --primary-100: #0A6651;
+    --primary-200: #118A73;
+    --primary-300: #E8F5F2;
+    --accent-100: #2E8B57;
+    --accent-200: #0D4F42;
+    --text-100: #333333;
+    --text-200: #666666;
+    --text-300: #999999;
+    --text-white: #FFFFFF;
+    --bg-100: #FFFFFF;
+    --bg-200: #F5F5F5;
+    --bg-300: #EEEEEE;
+    --border-100: #E0E0E0;
+    --border-200: #D0D0D0;
+    --success: #52C41A;
+    --warning: #FAAD14;
+    --error: #FF4D4F;
+    --info: #1890FF;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg-200); color: var(--text-100); min-height: 100vh; font-size: 13px; }
+.header { height: 50px; background: linear-gradient(180deg, #0A6651 0%, #0D4F42 100%); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
+.header .logo-area { display: flex; align-items: center; gap: 10px; color: var(--text-white); }
+.header .logo-area .sys-name { font-size: 16px; font-weight: 600; letter-spacing: 1px; }
+.header .right-panel { display: flex; align-items: center; gap: 12px; }
+.header .right-panel .btn-icon { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: var(--text-white); cursor: pointer; border: 1px solid rgba(255,255,255,0.2); font-size: 14px; transition: background 0.2s; }
+.header .right-panel .btn-icon:hover { background: rgba(255,255,255,0.25); }
+.header .right-panel .user-info { display: flex; align-items: center; gap: 8px; color: var(--text-white); cursor: pointer; }
+.header .right-panel .user-info .avatar { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.sidebar { width: 180px; background: var(--bg-100); border-right: 1px solid var(--border-100); position: fixed; top: 50px; left: 0; bottom: 0; overflow-y: auto; z-index: 999; }
+.sidebar .menu-item { height: 36px; line-height: 36px; padding: 0 16px; color: var(--text-100); cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-size: 13px; border-left: 3px solid transparent; white-space: nowrap; }
+.sidebar .menu-item:hover { background: var(--bg-200); }
+.sidebar .menu-item.active { background: var(--primary-100); color: var(--text-white); border-left-color: var(--primary-200); }
+.sidebar .menu-item .menu-icon { font-size: 14px; width: 16px; text-align: center; }
+.sidebar .menu-item .arrow { margin-left: auto; font-size: 10px; transition: transform 0.2s; }
+.sidebar .menu-item.expanded .arrow { transform: rotate(90deg); }
+.sidebar .sub-menu { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+.sidebar .sub-menu.open { max-height: 500px; }
+.sidebar .sub-menu .menu-item { padding-left: 40px; font-size: 12px; color: var(--text-200); }
+.sidebar .sub-menu .menu-item.active { background: transparent; color: var(--primary-100); border-left-color: var(--primary-100); font-weight: 500; }
+.sidebar .sub-menu .menu-item.has-sub { padding-left: 28px; font-size: 13px; color: var(--text-100); font-weight: 500; }
+.sidebar .sub-sub-menu { overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+.sidebar .sub-sub-menu.open { max-height: 300px; }
+.sidebar .sub-sub-menu .menu-item { padding-left: 56px; font-size: 12px; color: var(--text-200); }
+.sidebar .sub-sub-menu .menu-item.active { background: transparent; color: var(--primary-100); border-left-color: var(--primary-100); font-weight: 500; }
+.sidebar .menu-divider { height: 1px; background: var(--border-100); margin: 4px 12px; }
+.main-area { margin-left: 180px; margin-top: 50px; padding: 0; min-height: calc(100vh - 50px); background: var(--bg-200); }
+.tab-bar { display: flex; align-items: center; background: var(--bg-100); border-bottom: 1px solid var(--border-100); height: 36px; padding: 0 8px; gap: 2px; overflow-x: auto; }
+.tab-bar .tab-item { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-200); border: 1px solid var(--border-100); border-bottom: none; border-radius: 4px 4px 0 0; cursor: pointer; font-size: 12px; color: var(--text-200); white-space: nowrap; transition: all 0.15s; }
+.tab-bar .tab-item.active { background: var(--bg-100); color: var(--primary-100); font-weight: 500; border-bottom: 2px solid var(--bg-100); margin-bottom: -1px; }
+.tab-bar .tab-item .tab-close { font-size: 10px; margin-left: 2px; color: var(--text-300); }
+.tab-bar .tab-item .tab-close:hover { color: var(--error); }
+.page-content { display: none; padding: 16px; }
+.page-content.active { display: block; }
+.card { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+.card-title { font-size: 14px; font-weight: 500; color: var(--text-100); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-100); }
+.stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+.stat-card { background: var(--bg-100); border: 1px solid var(--border-100); border-radius: 4px; padding: 20px; position: relative; }
+.stat-card .stat-label { font-size: 13px; color: var(--text-200); margin-bottom: 8px; }
+.stat-card .stat-value { font-size: 28px; font-weight: 600; color: var(--primary-100); }
+.stat-card .stat-icon { position: absolute; right: 20px; top: 20px; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.stat-card .stat-icon.green { background: var(--primary-300); color: var(--primary-100); }
+.stat-card .stat-icon.blue { background: #E6F7FF; color: var(--info); }
+.stat-card .stat-icon.orange { background: #FFF7E6; color: var(--warning); }
+.stat-card .stat-icon.red { background: #FFF1F0; color: var(--error); }
+.table-wrap { overflow-x: auto; }
+table.data-table { width: 100%; border-collapse: collapse; }
+table.data-table th { background: var(--bg-200); padding: 10px 12px; text-align: left; font-weight: 500; color: var(--text-100); border-bottom: 1px solid var(--border-100); font-size: 13px; white-space: nowrap; }
+table.data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-100); font-size: 13px; white-space: nowrap; }
+table.data-table tbody tr:hover { background: var(--bg-200); }
+table.data-table .link { color: var(--accent-100); text-decoration: none; margin-right: 10px; cursor: pointer; }
+table.data-table .link:hover { text-decoration: underline; }
+table.data-table .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 12px; }
+.tag-success { background: #F6FFED; color: var(--success); }
+.tag-warning { background: #FFF7E6; color: var(--warning); }
+.tag-error { background: #FFF1F0; color: var(--error); }
+.progress-bar-wrap { height: 10px; background: var(--bg-200); border-radius: 5px; overflow: hidden; flex: 1; }
+.progress-bar-fill { height: 100%; border-radius: 5px; }
+.progress-bar-fill.good { background: var(--primary-100); }
+.progress-bar-fill.warn { background: var(--warning); }
+.progress-bar-fill.danger { background: var(--error); }
+.chart-area { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.chart-box { border: 1px solid var(--border-100); border-radius: 4px; padding: 16px; background: var(--bg-100); }
+.chart-box .chart-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: var(--text-100); }
+.chart-placeholder { height: 220px; background: var(--bg-200); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-300); font-size: 13px; }
+</style>
+</head>
+<body>
+<header class="header">
+    <div class="logo-area">
+        <span style="font-size:20px;">◈</span>
+        <span class="sys-name">战略与投资管理系统</span>
+    </div>
+    <div class="right-panel">
+        <div class="btn-icon" title="消息">✉</div>
+        <div class="btn-icon" title="全屏">⛶</div>
+        <div class="user-info">
+            <div class="avatar">张</div>
+            <span style="font-size:13px;">管理员</span>
+        </div>
+    </div>
+</header>
+<aside class="sidebar">
+    <div class="menu-item" onclick="window.location.href='home.html'">
+        <span class="menu-icon">⌂</span><span>主页</span>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="devplan">
+        <span class="menu-icon">📋</span><span>发展规划管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="devplan">
+        <div class="menu-item" onclick="window.location.href='plan-compile.html'"><span>规划编制管理</span></div>
+        <div class="menu-item" onclick="window.location.href='plan-exec.html'"><span>规划执行管理</span></div>
+        <div class="menu-item" onclick="window.location.href='plan-adjust.html'"><span>规划调整管理</span></div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item expanded" data-group="cooper">
+        <span class="menu-icon">🤝</span><span>战略合作管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu open" data-group="cooper">
+        <div class="menu-item has-sub" data-sub="cooper-initiate">
+            <span>发起管理</span><span class="arrow">▶</span>
+        </div>
+        <div class="sub-sub-menu" data-sub="cooper-initiate">
+            <div class="menu-item" onclick="window.location.href='cooper-intent-list.html'"><span>意向对接列表</span></div>
+            <div class="menu-item" onclick="window.location.href='cooper-negotiate.html'"><span>协商记录</span></div>
+            <div class="menu-item" onclick="window.location.href='cooper-feasibility.html'"><span>可行性论证</span></div>
+        </div>
+        <div class="menu-item has-sub" data-sub="cooper-draft">
+            <span>起草管理</span><span class="arrow">▶</span>
+        </div>
+        <div class="sub-sub-menu" data-sub="cooper-draft">
+            <div class="menu-item" onclick="window.location.href='cooper-draft-list.html'"><span>协议初稿列表</span></div>
+            <div class="menu-item" onclick="window.location.href='cooper-opinion-summary.html'"><span>意见汇总</span></div>
+        </div>
+        <div class="menu-item has-sub" data-sub="cooper-approve">
+            <span>审批与签署管理</span><span class="arrow">▶</span>
+        </div>
+        <div class="sub-sub-menu" data-sub="cooper-approve">
+            <div class="menu-item" onclick="window.location.href='cooper-approve-list.html'"><span>协议审批列表</span></div>
+        </div>
+        <div class="menu-item has-sub expanded" data-sub="cooper-exec">
+            <span>执行与评估管理</span><span class="arrow">▶</span>
+        </div>
+        <div class="sub-sub-menu open" data-sub="cooper-exec">
+            <div class="menu-item" onclick="window.location.href='cooper-exec-list.html'"><span>协议执行列表</span></div>
+            <div class="menu-item active"><span>执行进度看板</span></div>
+            <div class="menu-item" onclick="window.location.href='cooper-evaluate-list.html'"><span>评估管理</span></div>
+            <div class="menu-item" onclick="window.location.href='cooper-change-apply.html'"><span>变更/废止申请</span></div>
+            <div class="menu-item" onclick="window.location.href='cooper-renew-init.html'"><span>续签发起</span></div>
+        </div>
+        <div class="menu-item has-sub" data-sub="cooper-archive">
+            <span>归档查询</span><span class="arrow">▶</span>
+        </div>
+        <div class="sub-sub-menu" data-sub="cooper-archive">
+            <div class="menu-item" onclick="window.location.href='cooper-archive.html'"><span>全流程档案查询</span></div>
+        </div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="invest">
+        <span class="menu-icon">💰</span><span>投资管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="invest">
+        <div class="menu-item" onclick="window.location.href='invest-init.html'"><span>前期立项管理</span></div>
+        <div class="menu-item" onclick="window.location.href='invest-decision.html'"><span>投资决策管理</span></div>
+        <div class="menu-item" onclick="window.location.href='invest-impl.html'"><span>项目实施管理</span></div>
+        <div class="menu-item" onclick="window.location.href='invest-eval.html'"><span>总结评价管理</span></div>
+        <div class="menu-item" onclick="window.location.href='invest-index.html'"><span>投资指标库</span></div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="assist">
+        <span class="menu-icon">📊</span><span>辅助决策</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="assist">
+        <div class="menu-item" onclick="window.location.href='strategy-map.html'"><span>战略地图</span></div>
+        <div class="menu-item" onclick="window.location.href='project-overview.html'"><span>项目总览</span></div>
+        <div class="menu-item" onclick="window.location.href='invest-ops.html'"><span>投资运营</span></div>
+        <div class="menu-item" onclick="window.location.href='industry.html'"><span>行业研判</span></div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-item" data-group="system">
+        <span class="menu-icon">⚙</span><span>系统管理</span><span class="arrow">▶</span>
+    </div>
+    <div class="sub-menu" data-group="system">
+        <div class="menu-item" onclick="window.location.href='user-mgmt.html'"><span>用户管理</span></div>
+        <div class="menu-item" onclick="window.location.href='role-mgmt.html'"><span>权限管理</span></div>
+    </div>
+</aside>
+<main class="main-area">
+    <div class="tab-bar">
+        <div class="tab-item active">
+            <span>执行进度看板</span><span class="tab-close">×</span>
+        </div>
+    </div>
+    <div class="page-content active">
+        <div class="stat-cards">
+            <div class="stat-card">
+                <div class="stat-label">执行中协议</div>
+                <div class="stat-value">23</div>
+                <div class="stat-icon green">📝</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">平均执行进度</div>
+                <div class="stat-value">68%</div>
+                <div class="stat-icon blue">📊</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">延期预警</div>
+                <div class="stat-value">3</div>
+                <div class="stat-icon orange">⚠</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">已完成协议</div>
+                <div class="stat-value">15</div>
+                <div class="stat-icon red">✅</div>
+            </div>
+        </div>
+        <div class="chart-area">
+            <div class="chart-box">
+                <div class="chart-title">协议类型分布</div>
+                <div class="chart-placeholder">饼图：产业合作45%、区域合作30%、科研合作15%、人才合作10%</div>
+            </div>
+            <div class="chart-box">
+                <div class="chart-title">执行进度趋势</div>
+                <div class="chart-placeholder">折线图：显示近6个月执行进度变化趋势</div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">各类型协议执行进度与里程碑完成率</div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>协议类型</th><th>协议数量</th><th>整体进度</th><th>里程碑完成率</th><th>状态</th></tr></thead>
+                    <tbody>
+                        <tr><td>产业合作</td><td>12</td><td><div class="progress-bar-wrap"><div class="progress-bar-fill good" style="width:75%;"></div></div></td><td>82%</td><td><span class="tag tag-success">正常</span></td></tr>
+                        <tr><td>区域合作</td><td>8</td><td><div class="progress-bar-wrap"><div class="progress-bar-fill warn" style="width:45%;"></div></div></td><td>65%</td><td><span class="tag tag-warning">需关注</span></td></tr>
+                        <tr><td>科研合作</td><td>6</td><td><div class="progress-bar-wrap"><div class="progress-bar-fill good" style="width:88%;"></div></div></td><td>90%</td><td><span class="tag tag-success">正常</span></td></tr>
+                        <tr><td>人才合作</td><td>2</td><td><div class="progress-bar-wrap"><div class="progress-bar-fill danger" style="width:30%;"></div></div></td><td>50%</td><td><span class="tag tag-error">预警</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">延期预警协议</div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead><tr><th>协议名称</th><th>合作方</th><th>延期天数</th><th>当前进度</th><th>负责人</th><th>操作</th></tr></thead>
+                    <tbody>
+                        <tr><td>某人才合作协议</td><td>某高校</td><td><span class="tag tag-error">15天</span></td><td>30%</td><td>李明</td><td><span class="link">查看详情</span><span class="link" style="margin-left:4px;">催办</span></td></tr>
+                        <tr><td>某区域合作协议</td><td>某市政府</td><td><span class="tag tag-warning">8天</span></td><td>45%</td><td>王芳</td><td><span class="link">查看详情</span><span class="link" style="margin-left:4px;">催办</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>
