@@ -8696,31 +8696,32 @@ window.showDraftDetail = function(row) {
 
     // ---- 图表点击跳转函数 ----
     function navigateToPage(pageId, filterParams) {
-        var pages = document.querySelectorAll('.page-content');
-        pages.forEach(function(page) {
-            page.classList.remove('active');
-        });
-        var targetPage = document.getElementById(pageId);
-        if (targetPage) {
-            targetPage.classList.add('active');
-            
-            // 激活对应的菜单项
-            var menuItems = document.querySelectorAll('.menu-item');
-            menuItems.forEach(function(item) {
-                item.classList.remove('active');
-                // 根据页面ID匹配菜单项
-                var itemPage = item.getAttribute('data-page');
-                if (itemPage && pageId === 'page-' + itemPage) {
-                    item.classList.add('active');
-                    // 展开父菜单
-                    var parentMenu = item.closest('.has-sub');
-                    if (parentMenu) {
-                        parentMenu.classList.add('open');
-                    }
+        // 提取不带 page- 前缀的页面ID
+        var shortPageId = pageId.replace(/^page-/, '');
+        
+        // 查找对应的菜单名称
+        var tabName = '详情页';
+        var menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(function(item) {
+            var itemPage = item.getAttribute('data-page');
+            if (itemPage === shortPageId) {
+                tabName = item.getAttribute('data-tab') || shortPageId;
+                // 激活菜单项并展开父菜单
+                item.classList.add('active');
+                var parentMenu = item.closest('.has-sub');
+                if (parentMenu) {
+                    parentMenu.classList.add('open');
                 }
-            });
-            
-            // 如果有筛选参数，自动设置筛选条件
+            }
+        });
+        
+        // 使用项目原有的 switchPage 函数进行页面切换
+        if (window.switchPage) {
+            window.switchPage(shortPageId, tabName);
+        }
+        
+        // 如果有筛选参数，自动设置筛选条件
+        setTimeout(function() {
             if (filterParams) {
                 if (filterParams.type && pageId === 'page-cooper-exec-list') {
                     var typeFilter = document.getElementById('cooper-exec-type-filter');
@@ -8729,7 +8730,7 @@ window.showDraftDetail = function(row) {
                     }
                 }
             }
-        }
+        }, 100);
     }
 
     // ---- 获取点击位置对应的协议类型 ----
