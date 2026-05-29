@@ -2074,21 +2074,27 @@ table.data-table .tag { display: inline-block; padding: 2px 8px; border-radius: 
                         .decision-table th:nth-child(6) { width: 90px; }
                         .decision-table th:nth-child(7) { width: 110px; }
                         .decision-table th:nth-child(8) { width: 100px; }
-                        .decision-table th:nth-child(9) { width: 60px; }
-                        .decision-table th:nth-child(10) { width: 80px; }
+                        .decision-table th:nth-child(9) { width: 80px; }
+                        .decision-table th:nth-child(10) { width: 60px; }
+                        .decision-table th:nth-child(11) { width: 100px; }
                         .decision-table th { padding: 8px 10px; }
                         .decision-table td { padding: 8px 10px; white-space: nowrap; }
+                        .badge-key { display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;background:rgba(250,173,20,0.1);color:#FAA714;font-weight:500; }
+                        .btn-set-key { color:#FAA714;border:1px solid #FAA714;padding:2px 8px;border-radius:4px;font-size:12px;cursor:pointer;transition:all 0.2s; }
+                        .btn-set-key:hover { background:rgba(250,173,20,0.1); }
+                        .btn-cancel-key { color:#999;border:1px solid #ddd;padding:2px 8px;border-radius:4px;font-size:12px;cursor:pointer;transition:all 0.2s; }
+                        .btn-cancel-key:hover { background:#f5f5f5;color:#666; }
                     </style>
                     <table class="data-table decision-table">
-                        <thead><tr><th>序号</th><th>项目编号</th><th>项目名称</th><th>投资总额(万元)</th><th>申报单位</th><th>决策状态</th><th>决策日期</th><th>实施预警</th><th>详情</th><th>更多</th></tr></thead>
+                        <thead><tr><th>序号</th><th>项目编号</th><th>项目名称</th><th>投资总额(万元)</th><th>申报单位</th><th>决策状态</th><th>决策日期</th><th>实施预警</th><th>重点项目</th><th>详情</th><th>更多</th></tr></thead>
                         <tbody>
-                            <tr><td>1</td><td>XM-2025-001</td><td>新能源产业园区建设项目</td><td>85,000</td><td>能源事业部</td><td><span class="tag tag-success">已批复</span></td><td>2025-03-20</td><td><span class="tag tag-warning">24月预警</span></td><td class="link btn-decision-detail">详情</td><td><span class="link btn-decision-view">查看流程</span></td></tr>
-                            <tr><td>2</td><td>XM-2024-015</td><td>西南水电枢纽工程</td><td>320,000</td><td>水电事业部</td><td><span class="tag tag-success">已批复</span></td><td>2024-04-10</td><td><span class="tag tag-error">超期未实施</span></td><td class="link btn-decision-detail">详情</td><td><span class="link danger btn-decision-redo">重新决策</span></td></tr>
-                            <tr><td>3</td><td>XM-2025-002</td><td>数字化转型技术平台</td><td>12,000</td><td>数字化部</td><td><span class="tag tag-warning">部门会签</span></td><td>-</td><td>-</td><td class="link btn-decision-detail">详情</td><td><span class="link btn-decision-sign">会签处理</span></td></tr>
-                            <tr><td>4</td><td>XM-2024-010</td><td>环保科技产业园</td><td>56,000</td><td>环能事业部</td><td><span class="tag tag-info">分管审核</span></td><td>-</td><td>-</td><td class="link btn-decision-detail">详情</td><td><span class="link btn-decision-review">审核处理</span></td></tr>
-                            <tr><td>5</td><td>XM-2025-003</td><td>智慧物流中心二期</td><td>45,000</td><td>物流事业部</td><td><span class="tag tag-default">归口初审</span></td><td>-</td><td>-</td><td class="link btn-decision-detail">详情</td><td><span class="link btn-decision-initial">初审处理</span></td></tr>
-                            <tr><td>6</td><td>XM-2025-005</td><td>海外矿业并购B项目</td><td>150,000</td><td>矿业事业部</td><td><span class="tag tag-primary">评审中</span></td><td>-</td><td>-</td><td class="link btn-decision-detail">详情</td><td><span class="link btn-decision-eval">评审处理</span></td></tr>
-                            <tr><td>7</td><td>XM-2025-006</td><td>风光储一体化基地</td><td>120,000</td><td>新能源科技公司</td><td><span class="tag tag-purple">集团决策</span></td><td>-</td><td>-</td><td class="link btn-decision-detail">详情</td><td><span class="link btn-decision-final">决策处理</span></td></tr>
+                            <tr><td>1</td><td>XM-2025-001</td><td>新能源产业园区建设项目</td><td>85,000</td><td>能源事业部</td><td><span class="tag tag-success">已批复</span></td><td>2025-03-20</td><td><span class="tag tag-warning">24月预警</span></td><td><span class="badge-key">重点</span></td><td class="link btn-decision-detail">详情</td><td><span class="btn-cancel-key" onclick="toggleKeyProject(this, '取消重点')">取消重点</span></td></tr>
+                            <tr><td>2</td><td>XM-2024-015</td><td>西南水电枢纽工程</td><td>320,000</td><td>水电事业部</td><td><span class="tag tag-success">已批复</span></td><td>2024-04-10</td><td><span class="tag tag-error">超期未实施</span></td><td><span class="badge-key">重点</span></td><td class="link btn-decision-detail">详情</td><td><span class="btn-cancel-key" onclick="toggleKeyProject(this, '取消重点')">取消重点</span></td></tr>
+                            <tr><td>3</td><td>XM-2025-002</td><td>数字化转型技术平台</td><td>12,000</td><td>数字化部</td><td><span class="tag tag-warning">部门会签</span></td><td>-</td><td>-</td><td>-</td><td class="link btn-decision-detail">详情</td><td><span class="btn-set-key" onclick="toggleKeyProject(this, '设为重点')">设为重点</span></td></tr>
+                            <tr><td>4</td><td>XM-2024-010</td><td>环保科技产业园</td><td>56,000</td><td>环能事业部</td><td><span class="tag tag-info">分管审核</span></td><td>-</td><td>-</td><td>-</td><td class="link btn-decision-detail">详情</td><td><span class="btn-set-key" onclick="toggleKeyProject(this, '设为重点')">设为重点</span></td></tr>
+                            <tr><td>5</td><td>XM-2025-003</td><td>智慧物流中心二期</td><td>45,000</td><td>物流事业部</td><td><span class="tag tag-default">归口初审</span></td><td>-</td><td>-</td><td>-</td><td class="link btn-decision-detail">详情</td><td><span class="btn-set-key" onclick="toggleKeyProject(this, '设为重点')">设为重点</span></td></tr>
+                            <tr><td>6</td><td>XM-2025-005</td><td>海外矿业并购B项目</td><td>150,000</td><td>矿业事业部</td><td><span class="tag tag-primary">评审中</span></td><td>-</td><td>-</td><td>-</td><td class="link btn-decision-detail">详情</td><td><span class="btn-set-key" onclick="toggleKeyProject(this, '设为重点')">设为重点</span></td></tr>
+                            <tr><td>7</td><td>XM-2025-006</td><td>风光储一体化基地</td><td>120,000</td><td>新能源科技公司</td><td><span class="tag tag-purple">集团决策</span></td><td>-</td><td>-</td><td>-</td><td class="link btn-decision-detail">详情</td><td><span class="btn-set-key" onclick="toggleKeyProject(this, '设为重点')">设为重点</span></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -8770,6 +8776,27 @@ window.showDraftDetail = function(row) {
                 }
             });
         });
+    }
+
+    // ---- 重点项目切换函数 ----
+    function toggleKeyProject(element, action) {
+        var row = element.closest('tr');
+        var projectName = row.cells[2].textContent;
+        var keyCell = row.cells[8];
+        
+        if (action === '设为重点') {
+            keyCell.innerHTML = '<span class="badge-key">重点</span>';
+            element.className = 'btn-cancel-key';
+            element.innerHTML = '取消重点';
+            element.setAttribute('onclick', "toggleKeyProject(this, '取消重点')");
+            showNotification('已将 "' + projectName + '" 设为重点项目');
+        } else {
+            keyCell.innerHTML = '-';
+            element.className = 'btn-set-key';
+            element.innerHTML = '设为重点';
+            element.setAttribute('onclick', "toggleKeyProject(this, '设为重点')");
+            showNotification('已取消 "' + projectName + '" 的重点项目标记');
+        }
     }
 
     // ---- 获取图表对应的目标页面 ----
