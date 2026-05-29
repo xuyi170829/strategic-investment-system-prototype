@@ -8703,9 +8703,21 @@ window.showDraftDetail = function(row) {
         var targetPage = document.getElementById(pageId);
         if (targetPage) {
             targetPage.classList.add('active');
+            
+            // 激活对应的菜单项
             var menuItems = document.querySelectorAll('.menu-item');
             menuItems.forEach(function(item) {
                 item.classList.remove('active');
+                // 根据页面ID匹配菜单项
+                var itemPage = item.getAttribute('data-page');
+                if (itemPage && pageId === 'page-' + itemPage) {
+                    item.classList.add('active');
+                    // 展开父菜单
+                    var parentMenu = item.closest('.has-sub');
+                    if (parentMenu) {
+                        parentMenu.classList.add('open');
+                    }
+                }
             });
             
             // 如果有筛选参数，自动设置筛选条件
