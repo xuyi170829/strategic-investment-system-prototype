@@ -1605,6 +1605,10 @@ table.data-table .tag { display: inline-block; padding: 2px 8px; border-radius: 
                             <input type="text" style="padding:4px 8px;border:1px solid var(--border-100);border-radius:4px;font-size:13px;min-width:160px;">
                         </div>
                         <div style="display:flex;align-items:center;gap:8px;">
+                            <label style="font-size:13px;color:var(--text-200);white-space:nowrap;">协议类型：</label>
+                            <select id="cooper-exec-type-filter" style="padding:4px 8px;border:1px solid var(--border-100);border-radius:4px;font-size:13px;min-width:120px;"><option value="">全部</option><option value="产业合作">产业合作</option><option value="区域合作">区域合作</option><option value="技术合作">技术合作</option><option value="股权合作">股权合作</option><option value="服务合作">服务合作</option></select>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;">
                             <label style="font-size:13px;color:var(--text-200);white-space:nowrap;">执行状态：</label>
                             <select style="padding:4px 8px;border:1px solid var(--border-100);border-radius:4px;font-size:13px;min-width:120px;"><option>全部</option><option>正常推进</option><option>部分滞后</option><option>严重滞后</option></select>
                         </div>
@@ -1633,10 +1637,13 @@ table.data-table .tag { display: inline-block; padding: 2px 8px; border-radius: 
             <div style="padding:0 20px 16px;">
                 <div class="table-wrap">
                     <table class="data-table">
-                        <thead><tr><th style="width:40px;"><input type="checkbox"></th><th>序号</th><th>协议编号</th><th>协议名称</th><th>合作方</th><th>签署日期</th><th>到期日期</th><th>执行进度</th><th>状态</th><th>操作</th></tr></thead>
+                        <thead><tr><th style="width:40px;"><input type="checkbox"></th><th>序号</th><th>协议编号</th><th>协议名称</th><th>协议类型</th><th>合作方</th><th>签署日期</th><th>到期日期</th><th>执行进度</th><th>状态</th><th>操作</th></tr></thead>
                         <tbody>
-                            <tr><td><input type="checkbox"></td><td>1</td><td>XY-2025-001</td><td>与中国建筑集团战略合作协议</td><td>中国建筑集团</td><td>2026-05-20</td><td>2031-05-19</td><td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar-wrap" style="max-width:100px;"><div class="progress-bar-fill good" style="width:65%;height:8px;"></div></div><span style="font-size:12px;font-weight:600;">65%</span></div></td><td><span class="tag tag-success">正常推进</span></td><td><span class="link btn-exec-tasks-sj">任务列表</span><span class="link btn-exec-detail-sj" style="margin-left:4px;">详情</span></td></tr>
-                            <tr><td><input type="checkbox"></td><td>2</td><td>XY-2025-002</td><td>与深圳市政府区域合作协议</td><td>深圳市政府</td><td>2026-04-15</td><td>2029-04-14</td><td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar-wrap" style="max-width:100px;"><div class="progress-bar-fill warn" style="width:40%;height:8px;"></div></div><span style="font-size:12px;font-weight:600;">40%</span></div></td><td><span class="tag tag-warning">部分滞后</span></td><td><span class="link btn-exec-tasks-sj">任务列表</span><span class="link btn-exec-detail-sj" style="margin-left:4px;">详情</span></td></tr>
+                            <tr><td><input type="checkbox"></td><td>1</td><td>XY-2025-001</td><td>与中国建筑集团战略合作协议</td><td><span class="tag tag-info">产业合作</span></td><td>中国建筑集团</td><td>2026-05-20</td><td>2031-05-19</td><td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar-wrap" style="max-width:100px;"><div class="progress-bar-fill good" style="width:65%;height:8px;"></div></div><span style="font-size:12px;font-weight:600;">65%</span></div></td><td><span class="tag tag-success">正常推进</span></td><td><span class="link btn-exec-tasks-sj">任务列表</span><span class="link btn-exec-detail-sj" style="margin-left:4px;">详情</span></td></tr>
+                            <tr><td><input type="checkbox"></td><td>2</td><td>XY-2025-002</td><td>与深圳市政府区域合作协议</td><td><span class="tag tag-warning">区域合作</span></td><td>深圳市政府</td><td>2026-04-15</td><td>2029-04-14</td><td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar-wrap" style="max-width:100px;"><div class="progress-bar-fill warn" style="width:40%;height:8px;"></div></div><span style="font-size:12px;font-weight:600;">40%</span></div></td><td><span class="tag tag-warning">部分滞后</span></td><td><span class="link btn-exec-tasks-sj">任务列表</span><span class="link btn-exec-detail-sj" style="margin-left:4px;">详情</span></td></tr>
+                            <tr><td><input type="checkbox"></td><td>3</td><td>XY-2025-003</td><td>与华为技术有限公司技术合作协议</td><td><span class="tag tag-success">技术合作</span></td><td>华为技术有限公司</td><td>2026-03-20</td><td>2028-03-19</td><td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar-wrap" style="max-width:100px;"><div class="progress-bar-fill good" style="width:72%;height:8px;"></div></div><span style="font-size:12px;font-weight:600;">72%</span></div></td><td><span class="tag tag-success">正常推进</span></td><td><span class="link btn-exec-tasks-sj">任务列表</span><span class="link btn-exec-detail-sj" style="margin-left:4px;">详情</span></td></tr>
+                            <tr><td><input type="checkbox"></td><td>4</td><td>XY-2025-004</td><td>新能源产业股权合作协议</td><td><span class="tag tag-error">股权合作</span></td><td>远景能源科技</td><td>2026-02-10</td><td>2031-02-09</td><td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar-wrap" style="max-width:100px;"><div class="progress-bar-fill good" style="width:58%;height:8px;"></div></div><span style="font-size:12px;font-weight:600;">58%</span></div></td><td><span class="tag tag-success">正常推进</span></td><td><span class="link btn-exec-tasks-sj">任务列表</span><span class="link btn-exec-detail-sj" style="margin-left:4px;">详情</span></td></tr>
+                            <tr><td><input type="checkbox"></td><td>5</td><td>XY-2025-005</td><td>物流服务外包协议</td><td><span class="tag tag-default">服务合作</span></td><td>顺丰速运</td><td>2026-01-15</td><td>2027-01-14</td><td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar-wrap" style="max-width:100px;"><div class="progress-bar-fill good" style="width:85%;height:8px;"></div></div><span style="font-size:12px;font-weight:600;">85%</span></div></td><td><span class="tag tag-success">正常推进</span></td><td><span class="link btn-exec-tasks-sj">任务列表</span><span class="link btn-exec-detail-sj" style="margin-left:4px;">详情</span></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -8688,7 +8695,7 @@ window.showDraftDetail = function(row) {
     }
 
     // ---- 图表点击跳转函数 ----
-    function navigateToPage(pageId) {
+    function navigateToPage(pageId, filterParams) {
         var pages = document.querySelectorAll('.page-content');
         pages.forEach(function(page) {
             page.classList.remove('active');
@@ -8700,21 +8707,53 @@ window.showDraftDetail = function(row) {
             menuItems.forEach(function(item) {
                 item.classList.remove('active');
             });
+            
+            // 如果有筛选参数，自动设置筛选条件
+            if (filterParams) {
+                if (filterParams.type && pageId === 'page-cooper-exec-list') {
+                    var typeFilter = document.getElementById('cooper-exec-type-filter');
+                    if (typeFilter) {
+                        typeFilter.value = filterParams.type;
+                    }
+                }
+            }
         }
+    }
+
+    // ---- 获取点击位置对应的协议类型 ----
+    function getProtocolTypeByClick(chartId, clickX, chartWidth) {
+        var protocolTypes = ['产业合作', '区域合作', '技术合作', '股权合作', '服务合作'];
+        var segmentWidth = chartWidth / protocolTypes.length;
+        var index = Math.floor(clickX / segmentWidth);
+        return protocolTypes[Math.min(index, protocolTypes.length - 1)];
     }
 
     // ---- 图表点击事件绑定 ----
     function bindChartClickEvents() {
-        // 产业维度图表点击事件
+        // 图表点击事件
         document.querySelectorAll('.chart-box').forEach(function(box) {
             box.style.cursor = 'pointer';
             box.addEventListener('click', function(e) {
                 var canvas = this.querySelector('canvas');
                 var chartId = canvas ? canvas.id : '';
                 var targetPage = getChartTargetPage(chartId);
+                
                 if (targetPage) {
-                    navigateToPage(targetPage);
-                    showNotification('已跳转到对应列表页面');
+                    var filterParams = null;
+                    
+                    // 如果是协议执行进度图表，获取点击位置对应的协议类型
+                    if (chartId === 'chart-cooper-progress-1' && canvas) {
+                        var rect = canvas.getBoundingClientRect();
+                        var clickX = e.clientX - rect.left;
+                        var protocolType = getProtocolTypeByClick(chartId, clickX, canvas.width);
+                        filterParams = { type: protocolType };
+                        showNotification('已筛选：' + protocolType);
+                    }
+                    
+                    navigateToPage(targetPage, filterParams);
+                    if (!filterParams) {
+                        showNotification('已跳转到对应列表页面');
+                    }
                 }
             });
         });
