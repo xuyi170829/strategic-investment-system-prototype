@@ -8662,6 +8662,74 @@ window.showDraftDetail = function(row) {
         ctx.arcTo(x, y, x+r[0], y, r[0]); ctx.closePath();
     }
 
+    // ---- 图表点击跳转函数 ----
+    function navigateToPage(pageId) {
+        var pages = document.querySelectorAll('.page-content');
+        pages.forEach(function(page) {
+            page.classList.remove('active');
+        });
+        var targetPage = document.getElementById(pageId);
+        if (targetPage) {
+            targetPage.classList.add('active');
+            var menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(function(item) {
+                item.classList.remove('active');
+            });
+        }
+    }
+
+    // ---- 图表点击事件绑定 ----
+    function bindChartClickEvents() {
+        // 产业维度图表点击事件
+        document.querySelectorAll('.chart-box').forEach(function(box) {
+            box.style.cursor = 'pointer';
+            box.addEventListener('click', function(e) {
+                var canvas = this.querySelector('canvas');
+                var chartId = canvas ? canvas.id : '';
+                var targetPage = getChartTargetPage(chartId);
+                if (targetPage) {
+                    navigateToPage(targetPage);
+                    showNotification('已跳转到对应列表页面');
+                }
+            });
+        });
+    }
+
+    // ---- 获取图表对应的目标页面 ----
+    function getChartTargetPage(chartId) {
+        var pageMap = {
+            // 产业维度图表
+            'chart-chan-1': 'page-invest-init',        // 各产业板块投资分布 -> 前期立项列表
+            'chart-chan-2': 'page-invest-eval',        // 关键经营指标趋势 -> 投资评估列表
+            'chart-chan-3': 'page-invest-decision',    // 重点项目战略贡献度 -> 投资决策列表
+            'chart-chan-4': 'page-invest-index',       // 产业投资规模占比 -> 投资指标列表
+            // 区域维度图表
+            'chart-region-1': 'page-invest-init',      // 区域投资分布 -> 前期立项列表
+            'chart-region-2': 'page-invest-archive',   // 区域投资占比 -> 投资档案查询
+            'chart-region-3': 'page-invest-impl',      // 区域投资排名 -> 投资实施列表
+            'chart-region-4': 'page-invest-eval',      // 区域投资趋势 -> 投资评估列表
+            // 阶段维度图表
+            'chart-phase-1': 'page-invest-init',       // 项目阶段分布 -> 前期立项列表
+            'chart-phase-2': 'page-invest-decision',   // 阶段转化率 -> 投资决策列表
+            'chart-phase-3': 'page-invest-impl',       // 阶段投资对比 -> 投资实施列表
+            'chart-phase-4': 'page-invest-eval',       // 阶段评价趋势 -> 投资评估列表
+            // 合作维度图表
+            'chart-cooper-1': 'page-cooper-intent-list',  // 合作数量趋势 -> 意向对接列表
+            'chart-cooper-2': 'page-cooper-approve-list', // 合作类型分布 -> 审批签署列表
+            'chart-cooper-3': 'page-cooper-exec-list',    // 合作执行进度 -> 执行管理列表
+            'chart-cooper-4': 'page-cooper-evaluate-list', // 合作评估结果 -> 评估管理列表
+            // 项目总览图表
+            'chart-project-status': 'page-invest-impl',   // 项目状态分布 -> 投资实施列表
+            'chart-project-phase': 'page-invest-init',    // 项目阶段分布 -> 前期立项列表
+            // 投资运营图表
+            'chart-ops-revenue': 'page-invest-index',     // 营收趋势 -> 投资指标列表
+            'chart-ops-cost-revenue': 'page-invest-eval', // 成本收益 -> 投资评估列表
+            'chart-ops-profit-rank': 'page-invest-archive', // 利润排名 -> 投资档案查询
+            'chart-ops-benchmark': 'page-invest-index'    // 对标分析 -> 投资指标列表
+        };
+        return pageMap[chartId] || null;
+    }
+
     // ---- 维度渲染函数 ----
     function renderChanCharts() {
         var c1 = getCanvas('chart-chan-1');
@@ -8693,6 +8761,8 @@ window.showDraftDetail = function(row) {
             ['能源','矿业','物流','金融','科技'],
             [320,180,85,65,42],
             ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6']);
+        
+        bindChartClickEvents();
     }
 
     function renderRegionCharts() {
@@ -8722,6 +8792,8 @@ window.showDraftDetail = function(row) {
             {color:'#f59e0b',data:[5.8,6.2,6.9,6.5,7.2,7.8]},
             {color:'#ef4444',data:[7.0,7.6,8.2,8.8,9.5,10.5]}
         ], ['Q1','Q2','Q3','Q4','Q1(预测)','Q2(预测)']);
+        
+        bindChartClickEvents();
     }
 
     function renderPhaseCharts() {
@@ -8766,6 +8838,8 @@ window.showDraftDetail = function(row) {
             [65,42,135,90,30],
             [62,38,128,85,28],
             '预算','实际支出','#3b82f6','#10b981');
+        
+        bindChartClickEvents();
     }
 
     function renderSubCharts() {
@@ -8828,6 +8902,8 @@ window.showDraftDetail = function(row) {
                 ctx.fillText(vals[i]+'万元/人', pad.l+vw+6, y+bh/2+4);
             }
         }
+        
+        bindChartClickEvents();
     }
 
     // ============ 渲染所有辅助决策图表 ============
