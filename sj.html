@@ -8662,6 +8662,20 @@ window.showDraftDetail = function(row) {
         ctx.arcTo(x, y, x+r[0], y, r[0]); ctx.closePath();
     }
 
+    // ---- 通知提示函数 ----
+    function showNotification(message) {
+        var notification = document.createElement('div');
+        notification.style.cssText = 'position:fixed;top:20px;right:20px;padding:12px 24px;background:#10b981;color:white;border-radius:8px;z-index:9999;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:slideIn 0.3s ease-out;';
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(function() {
+            notification.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(function() {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 2000);
+    }
+
     // ---- 图表点击跳转函数 ----
     function navigateToPage(pageId) {
         var pages = document.querySelectorAll('.page-content');
